@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Search Dashboard - Golden Stickwood</title>
+<style>
+:root {
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --header-bg: #f1f5f9;
+  --row-alt: #f8fafc;
+  --row-hover: #f1f5f9;
+  --stat-border: #cbd5e1;
+  --status-draft: #64748b;
+  --status-scraped: #6366f1;
+  --status-active: #3b82f6;
+  --status-interview: #f59e0b;
+  --status-offer: #8b5cf6;
+  --status-hired: #22c55e;
+  --status-rejected: #ef4444;
+  --badge-draft-bg: #f1f5f9;
+  --badge-draft-text: #475569;
+  --badge-scraped-bg: #e0e7ff;
+  --badge-scraped-text: #3730a3;
+  --badge-active-bg: #dbeafe;
+  --badge-active-text: #1d4ed8;
+  --badge-interview-bg: #fef3c7;
+  --badge-interview-text: #b45309;
+  --badge-offer-bg: #ede9fe;
+  --badge-offer-text: #6d28d9;
+  --badge-hired-bg: #dcfce7;
+  --badge-hired-text: #15803d;
+  --badge-rejected-bg: #fee2e2;
+  --badge-rejected-text: #b91c1c;
+  --pay-bg: #ecfdf5;
+  --pay-text: #047857;
+  --pay-border: #a7f3d0;
+  --chart-svg-bg: #e2e8f0;
+  --chart-svg-text: #475569;
+  --star-gold: #f59e0b;
+}
+
+[data-theme="dark"] {
+  --bg: #0b0f19;
+  --card-bg: #111827;
+  --text: #f3f4f6;
+  --text-muted: #9ca3af;
+  --border: #1f2937;
+  --header-bg: #1e293b;
+  --row-alt: #131d2e;
+  --row-hover: #1e293b;
+  --stat-border: #374151;
+  --badge-draft-bg: #1f2937;
+  --badge-draft-text: #9ca3af;
+  --badge-scraped-bg: #312e81;
+  --badge-scraped-text: #c7d2fe;
+  --badge-active-bg: #1e3a8a;
+  --badge-active-text: #93c5fd;
+  --badge-interview-bg: #78350f;
+  --badge-interview-text: #fde68a;
+  --badge-offer-bg: #4c1d95;
+  --badge-offer-text: #ddd6fe;
+  --badge-hired-bg: #064e3b;
+  --badge-hired-text: #a7f3d0;
+  --badge-rejected-bg: #7f1d1d;
+  --badge-rejected-text: #fecaca;
+  --pay-bg: #064e3b33;
+  --pay-text: #34d399;
+  --pay-border: #05966955;
+  --chart-svg-bg: #374151;
+  --chart-svg-text: #cbd5e1;
+  --star-gold: #fbbf24;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s ease, border-color 0.2s ease; }
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  padding: 24px;
+  line-height: 1.5;
+}
+
+.container { max-width: 1560px; margin: 0 auto; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); }
+.gen-date { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.theme-toggle-btn:hover {
+  border-color: var(--status-active);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-left: 4px solid var(--status-draft);
+}
+.stat-card.total { border-left-color: var(--text); }
+.stat-card.scraped { border-left-color: var(--status-scraped); }
+.stat-card.drafted { border-left-color: var(--status-draft); }
+.stat-card.active { border-left-color: var(--status-active); }
+.stat-card.interview { border-left-color: var(--status-interview); }
+.stat-card.offer { border-left-color: var(--status-offer); }
+.stat-card.rejected { border-left-color: var(--status-rejected); }
+
+.stat-num { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: 4px; color: var(--text); }
+.stat-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.table-section {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.table-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input, .filter-select, .sort-select {
+  padding: 9px 14px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+}
+.search-input { flex: 2; min-width: 240px; }
+.filter-select, .sort-select { flex: 1; min-width: 190px; }
+.search-input:focus, .filter-select:focus, .sort-select:focus {
+  border-color: var(--status-active);
+}
+
+.table-stats-bar {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+th {
+  background: var(--header-bg);
+  padding: 12px 14px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+}
+th:hover {
+  background: var(--border);
+}
+th .sort-icon {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+th.active-sort .sort-icon {
+  color: var(--status-active);
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tr:nth-child(even) { background: var(--row-alt); }
+tr:hover { background: var(--row-hover); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-drafted { background: var(--badge-draft-bg); color: var(--badge-draft-text); }
+.badge-scraped { background: var(--badge-scraped-bg); color: var(--badge-scraped-text); }
+.badge-active { background: var(--badge-active-bg); color: var(--badge-active-text); }
+.badge-interview { background: var(--badge-interview-bg); color: var(--badge-interview-text); }
+.badge-offer { background: var(--badge-offer-bg); color: var(--badge-offer-text); }
+.badge-hired { background: var(--badge-hired-bg); color: var(--badge-hired-text); }
+.badge-rejected { background: var(--badge-rejected-bg); color: var(--badge-rejected-text); }
+
+.fit-score {
+  font-weight: 700;
+  color: #10b981;
+  font-size: 0.95rem;
+}
+
+.pay-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--pay-bg);
+  color: var(--pay-text);
+  border: 1px solid var(--pay-border);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-proximity {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-proximity strong {
+  font-weight: 700;
+}
+.badge-proximity .prox-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.prox-local {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+.prox-york {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+}
+.prox-simcoe {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.prox-gta {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+.prox-peel-halton {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.prox-regional {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+.prox-remote {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+[data-theme="dark"] .prox-local {
+  background: #064e3b;
+  color: #dcfce7;
+  border-color: #059669;
+}
+[data-theme="dark"] .prox-york {
+  background: #0c4a6e;
+  color: #e0f2fe;
+  border-color: #0284c7;
+}
+[data-theme="dark"] .prox-simcoe {
+  background: #14532d;
+  color: #dcfce7;
+  border-color: #16a34a;
+}
+[data-theme="dark"] .prox-gta {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+[data-theme="dark"] .prox-peel-halton {
+  background: #78350f;
+  color: #fef3c7;
+  border-color: #b45309;
+}
+[data-theme="dark"] .prox-regional {
+  background: #7c2d12;
+  color: #ffedd5;
+  border-color: #ea580c;
+}
+[data-theme="dark"] .prox-remote {
+  background: #4c1d95;
+  color: #ede9fe;
+  border-color: #6d28d9;
+}
+
+.badge-overall {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-overall .overall-grade-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.95;
+}
+.overall-s {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(16,185,129,0.3);
+}
+.overall-a {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+.overall-b {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.overall-c {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme="dark"] .overall-s {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #ecfdf5;
+  box-shadow: 0 1px 4px rgba(5,150,105,0.4);
+}
+[data-theme="dark"] .overall-a {
+  background: #1e3a8a;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+[data-theme="dark"] .overall-b {
+  background: #78350f;
+  color: #fef3c7;
+  border-color: #b45309;
+}
+[data-theme="dark"] .overall-c {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+.badge-prestige {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.badge-prestige .prestige-tier-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.prestige-tier1 {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.prestige-tier2 {
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+}
+.prestige-tier3 {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+.prestige-tier4 {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+[data-theme="dark"] .prestige-tier1 {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  color: #fef3c7;
+  border-color: #b45309;
+}
+[data-theme="dark"] .prestige-tier2 {
+  background: #4c1d95;
+  color: #ede9fe;
+  border-color: #6d28d9;
+}
+[data-theme="dark"] .prestige-tier3 {
+  background: #075985;
+  color: #e0f2fe;
+  border-color: #0284c7;
+}
+[data-theme="dark"] .prestige-tier4 {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+.badge-chance {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-chance .chance-label-text {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.chance-very-high {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.chance-high {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+.chance-moderate {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+.chance-reach {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+[data-theme="dark"] .chance-very-high {
+  background: #064e3b;
+  color: #dcfce7;
+  border-color: #059669;
+}
+[data-theme="dark"] .chance-high {
+  background: #1e3a8a;
+  color: #dbeafe;
+  border-color: #3b82f6;
+}
+[data-theme="dark"] .chance-moderate {
+  background: #78350f;
+  color: #fef3c7;
+  border-color: #b45309;
+}
+[data-theme="dark"] .chance-reach {
+  background: #7f1d1d;
+  color: #fecaca;
+  border-color: #dc2626;
+}
+
+.link-btn {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.link-btn.posting { color: #2563eb; }
+.link-btn.cv { color: #059669; }
+.link-btn.cl { color: #d97706; }
+.link-btn:hover { text-decoration: underline; }
+
+.cell-actions { white-space: nowrap; }
+.cell-company { font-weight: 600; min-width: 140px; }
+.cell-distance { white-space: nowrap; }
+.cell-role { max-width: 220px; }
+.cell-location { max-width: 140px; color: var(--text-muted); font-size: 0.82rem; }
+
+footer {
+  margin-top: 24px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Job Board Multi-Select & Badges */
+.board-filter-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.board-select-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 14px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+}
+.board-select-btn:hover, .board-select-btn.active {
+  border-color: var(--status-active);
+}
+
+.board-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 290px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  z-index: 100;
+  padding: 8px 0;
+  display: block;
+}
+.board-menu.hidden {
+  display: none;
+}
+
+.board-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.board-menu-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.board-menu-actions {
+  display: flex;
+  gap: 8px;
+}
+.board-action-btn {
+  background: none;
+  border: none;
+  color: var(--status-active);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+.board-action-btn:hover {
+  text-decoration: underline;
+}
+
+.board-menu-items {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 2px 6px;
+}
+.board-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  user-select: none;
+}
+.board-item:hover {
+  background: var(--row-hover);
+}
+.board-item input[type="checkbox"] {
+  accent-color: var(--status-active);
+  cursor: pointer;
+  width: 15px;
+  height: 15px;
+}
+.board-item-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.board-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  margin-right: 6px;
+}
+.board-only-btn {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: var(--row-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.board-only-btn:hover {
+  opacity: 1;
+  color: var(--status-active);
+  border-color: var(--status-active);
+}
+
+/* Quick Filter Chips */
+.board-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+.chips-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+}
+.quick-chip {
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.quick-chip:hover {
+  border-color: var(--status-active);
+  color: var(--status-active);
+}
+.quick-chip.active {
+  background: var(--badge-active-bg);
+  color: var(--badge-active-text);
+  border-color: var(--status-active);
+}
+
+/* Board Badges in Table */
+.board-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.badge-indeed { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.badge-jobbank { background: #ffe4e6; color: #9f1239; border: 1px solid #fecdd3; }
+.badge-linkedin { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+.badge-talent { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.badge-eluta { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-gcjobs { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.badge-direct { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+[data-theme="dark"] .badge-indeed { background: #312e81; color: #c7d2fe; border-color: #4338ca; }
+[data-theme="dark"] .badge-jobbank { background: #881337; color: #fecdd3; border-color: #9f1239; }
+[data-theme="dark"] .badge-linkedin { background: #0c4a6e; color: #bae6fd; border-color: #0369a1; }
+[data-theme="dark"] .badge-talent { background: #14532d; color: #bbf7d0; border-color: #16a34a; }
+[data-theme="dark"] .badge-eluta { background: #78350f; color: #fde68a; border-color: #b45309; }
+[data-theme="dark"] .badge-gcjobs { background: #7f1d1d; color: #fecaca; border-color: #991b1b; }
+[data-theme="dark"] .badge-direct { background: #1e293b; color: #cbd5e1; border-color: #334155; }
+
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div>
+<h1>Job Search Application Dashboard</h1>
+<div class="gen-date">Candidate: Golden Stickwood (Newmarket, ON) • Target: Winter 2027 Co-op (Jan–Apr 2027) • Exclusively Verified Winter Co-ops • Last updated: September 10, 2026</div>
+</div>
+<div class="header-actions">
+<button class="theme-toggle-btn" id="theme-toggle">
+<span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+</button>
+</div>
+</header>
+<div class="stat-grid">
+<div class="stat-card total">
+<div class="stat-num" id="stat-num-total">32</div>
+<div class="stat-label">Total Verified Winter Co-ops</div>
+</div>
+<div class="stat-card scraped">
+<div class="stat-num" id="stat-num-scraped">28</div>
+<div class="stat-label">Scraped / To Apply</div>
+</div>
+<div class="stat-card drafted">
+<div class="stat-num" id="stat-num-drafted">4</div>
+<div class="stat-label">Drafted / Ready</div>
+</div>
+<div class="stat-card active">
+<div class="stat-num" id="stat-num-active">0</div>
+<div class="stat-label">Active / Submitted</div>
+</div>
+<div class="stat-card interview">
+<div class="stat-num" id="stat-num-interview">0</div>
+<div class="stat-label">Interviews</div>
+</div>
+<div class="stat-card offer">
+<div class="stat-num" id="stat-num-offer">0</div>
+<div class="stat-label">Offers</div>
+</div>
+<div class="stat-card rejected">
+<div class="stat-num" id="stat-num-rejected">0</div>
+<div class="stat-label">Closed / Rejected</div>
+</div>
+</div>
+<div class="table-section">
+<div class="table-controls">
+<input class="search-input" id="search-box" placeholder="Search company, role, municipality (Newmarket, Markham, Toronto), keywords..." type="text"/>
+<select class="filter-select" id="status-filter">
+<option value="ALL">All Winter Co-ops (32)</option>
+<option value="Scraped">Scraped / To Apply (28)</option>
+<option value="Drafted">Drafted / Ready (4)</option>
+<option value="Active">Active / Submitted (0)</option>
+<option value="Interview">Interviews (0)</option>
+<option value="Offer">Offers (0)</option>
+<option value="Rejected/Closed">Closed / Rejected (0)</option>
+</select>
+<select class="filter-select" id="region-filter">
+<option value="ALL">All Proximity Zones (307)</option>
+<option value="local">Local (Newmarket / Aurora / EG)</option>
+<option value="york region">York Region (Richmond Hill / Markham / Vaughan)</option>
+<option value="simcoe region">Simcoe / Barrie</option>
+<option value="gta core">GTA Core / Downtown Toronto</option>
+<option value="toronto north">Toronto North (North York / Don Mills)</option>
+<option value="peel region">Peel Region (Mississauga / Brampton)</option>
+<option value="halton region">Halton Region (Oakville / Milton / Burlington)</option>
+<option value="regional on">Regional ON (Guelph / Waterloo / Cambridge)</option>
+<option value="remote">Remote / Virtual</option>
+</select>
+<div class="board-filter-wrapper" id="board-filter-wrapper">
+<button class="board-select-btn" id="board-select-btn" title="Filter by job posting source board" type="button">
+<span id="board-btn-text">🌐 Job Boards (All)</span>
+<span>▾</span>
+</button>
+<div class="board-menu hidden" id="board-menu">
+<div class="board-menu-header">
+<span class="board-menu-title">Select Job Boards</span>
+<div class="board-menu-actions">
+<button class="board-action-btn" id="board-all-btn" type="button">All</button>
+<button class="board-action-btn" id="board-none-btn" type="button">None</button>
+</div>
+</div>
+<div class="board-menu-items">
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="indeed"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-indeed">Indeed</span> Indeed Canada</span>
+<span class="board-count" id="count-indeed">(25)</span>
+</div>
+<button class="board-only-btn" data-board="indeed" title="Show only Indeed" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="jobbank"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-jobbank">Jobs Canada</span> Job Bank</span>
+<span class="board-count" id="count-jobbank">(0)</span>
+</div>
+<button class="board-only-btn" data-board="jobbank" title="Show only Job Bank / Jobs Canada" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="linkedin"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-linkedin">LinkedIn</span> LinkedIn Jobs</span>
+<span class="board-count" id="count-linkedin">(5)</span>
+</div>
+<button class="board-only-btn" data-board="linkedin" title="Show only LinkedIn" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="talent"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-talent">Talent.com</span> Talent.com</span>
+<span class="board-count" id="count-talent">(0)</span>
+</div>
+<button class="board-only-btn" data-board="talent" title="Show only Talent.com" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="eluta"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-eluta">Eluta</span> Eluta.ca</span>
+<span class="board-count" id="count-eluta">(1)</span>
+</div>
+<button class="board-only-btn" data-board="eluta" title="Show only Eluta" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="gcjobs"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-gcjobs">GC Jobs</span> Federal Jobs</span>
+<span class="board-count" id="count-gcjobs">(0)</span>
+</div>
+<button class="board-only-btn" data-board="gcjobs" title="Show only GC Jobs" type="button">only</button>
+</label>
+<label class="board-item">
+<input checked="" class="board-checkbox" type="checkbox" value="direct"/>
+<div class="board-item-label">
+<span><span class="board-badge badge-direct">Direct</span> Employer Direct</span>
+<span class="board-count" id="count-direct">(1)</span>
+</div>
+<button class="board-only-btn" data-board="direct" title="Show only Direct" type="button">only</button>
+</label>
+</div>
+</div>
+</div>
+<select class="sort-select" id="sort-select">
+<option value="distance-asc">Sort by: Proximity to Newmarket (Closest First 📍)</option>
+<option value="overall-desc">Sort by: Overall Score (High to Low)</option>
+<option value="chance-desc">Sort by: Chance of Offer (High to Low)</option>
+<option value="prestige-desc">Sort by: Prestige (Tier 1 to Tier 4)</option>
+<option value="fit-desc">Sort by: Fit Match (High to Low)</option>
+<option value="pay-desc">Sort by: Est. Hourly Pay (High to Low)</option>
+<option value="distance-desc">Sort by: Distance from Newmarket (Furthest First)</option>
+<option value="date-desc">Sort by: Date Found (Newest First)</option>
+<option value="company-asc">Sort by: Company Name (A-Z)</option>
+</select>
+</div>
+<div class="board-quick-chips">
+<span class="chips-label">Board Presets:</span>
+<button class="quick-chip active" data-preset="all" type="button">🌐 All Boards</button>
+<button class="quick-chip" data-preset="indeed" type="button"><span class="board-badge badge-indeed" style="margin-right:2px;">Indeed</span> Indeed Canada</button>
+<button class="quick-chip" data-preset="jobbank" type="button"><span class="board-badge badge-jobbank" style="margin-right:2px;">Jobs Canada</span> Job Bank</button>
+<button class="quick-chip" data-preset="indeed-jobbank" type="button">🎯 Indeed + Jobs Canada</button>
+<button class="quick-chip" data-preset="linkedin" type="button"><span class="board-badge badge-linkedin" style="margin-right:2px;">LinkedIn</span> LinkedIn</button>
+<button class="quick-chip" data-preset="talent" type="button"><span class="board-badge badge-talent" style="margin-right:2px;">Talent</span> Talent.com</button>
+<button class="quick-chip" data-preset="eluta" type="button"><span class="board-badge badge-eluta" style="margin-right:2px;">Eluta</span> Eluta</button>
+</div>
+<div class="table-stats-bar">
+<span id="showing-count">Showing 32 of 32 Winter Co-op listings</span>
+<span>Tip: Click any column header (including Distance) to sort instantly</span>
+</div>
+<div class="table-wrapper">
+<table id="job-table">
+<thead>
+<tr>
+<th data-col="date">Date <span class="sort-icon">↕</span></th>
+<th data-col="company">Company <span class="sort-icon">↕</span></th>
+<th class="active-sort" data-col="distance">Distance (Newmarket) <span class="sort-icon">↑</span></th>
+<th data-col="overall">Overall <span class="sort-icon">↕</span></th>
+<th data-col="prestige">Prestige <span class="sort-icon">↕</span></th>
+<th data-col="chance">Chance <span class="sort-icon">↕</span></th>
+<th data-col="role">Role Title <span class="sort-icon">↕</span></th>
+<th data-col="location">Location <span class="sort-icon">↕</span></th>
+<th data-col="fit">Fit <span class="sort-icon">↕</span></th>
+<th data-col="pay">Est. Pay <span class="sort-icon">↕</span></th>
+<th data-col="status">Status <span class="sort-icon">↕</span></th>
+<th data-col="deadline">Deadline <span class="sort-icon">↕</span></th>
+<th>Materials &amp; Actions</th>
+</tr>
+</thead>
+<tbody id="table-body"><tr data-board="linkedin" data-chance="65" data-company="ibm canada" data-date="2026-08-29" data-distance="26" data-fit="88" data-index="0" data-overall="89" data-pay="32.00" data-prestige="92" data-region="york region" data-role="microsoft 365 copilot studio consultant intern (january 2027)" data-status="Drafted"><td class="cell-date">2026-08-29</td><td class="cell-company"><strong>IBM Canada</strong></td><td class="cell-distance"><span class="badge-proximity prox-york" title="Markham, ON (IBM Software Lab - ~26 km from Newmarket)"><strong>~26 km</strong> <span class="prox-label">York Region</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>89</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-moderate">65% <span class="chance-label-text">(Mod)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Microsoft 365 Copilot Studio Consultant Intern (January 2027)</td><td class="cell-location">Markham, ON (IBM Software Lab - ~26 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">88%</span></td><td class="cell-pay"><span class="pay-tag">$30.00 – $34.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-drafted">Drafted</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-linkedin">LinkedIn</span> <a class="link-btn posting" href="https://ca.linkedin.com/jobs/view/microsoft-365-copilot-studio-consultant-intern-january-2027-4-months-toronto-at-ibm-4458029546" target="_blank">Posting</a> • <a class="link-btn cv" href="../cv/main_IBM_M365_Copilot_Consultant_Intern.pdf" target="_blank">CV</a> • <a class="link-btn cl" href="../cover_letters/cover_IBM_M365_Copilot_Consultant_Intern.pdf" target="_blank">Cover Letter</a></td></tr><tr data-board="linkedin" data-chance="78" data-company="ibm" data-date="2026-09-10" data-distance="26" data-fit="85" data-index="1" data-overall="84" data-pay="25.00" data-prestige="82" data-region="york region" data-role="microsoft 365 copilot studio consultant intern (january 2027 - 4 months)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>IBM</strong></td><td class="cell-distance"><span class="badge-proximity prox-york" title="Markham, ON (IBM Software Lab - ~26 km from Newmarket)"><strong>~26 km</strong> <span class="prox-label">York Region</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Microsoft 365 Copilot Studio Consultant Intern (January 2027 - 4 Months)</td><td class="cell-location">Markham, ON (IBM Software Lab - ~26 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-linkedin">LinkedIn</span> <a class="link-btn posting" href="linkedin-4458029546" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="75" data-company="s&amp;c electric company (power grid &amp; industrial infrastructure systems)" data-date="2026-09-10" data-distance="42" data-fit="94" data-index="2" data-overall="90" data-pay="28.00" data-prestige="86" data-region="toronto north" data-role="junior systems administrator (co-op) - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>S&amp;C Electric Company (Power Grid &amp; Industrial Infrastructure Systems)</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto, ON (Etobicoke Industrial Corridor - ~42 km from Newmarket)"><strong>~42 km</strong> <span class="prox-label">Toronto North</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>90</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">75% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Junior Systems Administrator (Co-op) - Winter 2027</td><td class="cell-location">Toronto, ON (Etobicoke Industrial Corridor - ~42 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">94%</span></td><td class="cell-pay"><span class="pay-tag">$26.00 – $30.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=9807530635f79ca8" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="72" data-company="s&amp;c electric company" data-date="2026-09-10" data-distance="42" data-fit="90" data-index="3" data-overall="88" data-pay="29.00" data-prestige="88" data-region="toronto north" data-role="desktop support analyst (co-op)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>S&amp;C Electric Company</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto, ON (Etobicoke Industrial Corridor - ~42 km from Newmarket)"><strong>~42 km</strong> <span class="prox-label">Toronto North</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Desktop Support Analyst (Co-op)</td><td class="cell-location">Toronto, ON (Etobicoke Industrial Corridor - ~42 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=986cd6f35b2eb38e" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="75" data-company="equitable bank (eqb)" data-date="2026-09-10" data-distance="46" data-fit="94" data-index="4" data-overall="90" data-pay="28.00" data-prestige="86" data-region="gta core" data-role="intern - technology workplace services, winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Equitable Bank (EQB)</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Midtown Toronto, ON (Equitable Bank Tower / 30 St Clair Ave W - ~46 km from Newmarket)"><strong>~46 km</strong> <span class="prox-label">Midtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>90</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">75% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Intern - Technology Workplace Services, Winter 2027</td><td class="cell-location">Midtown Toronto, ON (Equitable Bank Tower / 30 St Clair Ave W - ~46 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">94%</span></td><td class="cell-pay"><span class="pay-tag">$26.00 – $30.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=66d2fc35e6fc2aa1" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="75" data-company="info-tech research group" data-date="2026-09-10" data-distance="46" data-fit="94" data-index="5" data-overall="90" data-pay="28.00" data-prestige="86" data-region="gta core" data-role="co-op service desk technician - winter 2027 (january to april) - toronto, ontario (in office)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Info-Tech Research Group</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Midtown Toronto, ON (888 Yonge St - ~46 km from Newmarket)"><strong>~46 km</strong> <span class="prox-label">Midtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>90</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">75% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Co-op Service Desk Technician - Winter 2027 (January to April) - Toronto, Ontario (IN OFFICE)</td><td class="cell-location">Midtown Toronto, ON (888 Yonge St - ~46 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">94%</span></td><td class="cell-pay"><span class="pay-tag">$26.00 – $30.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=fe069b7241819186" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="intact" data-date="2026-09-10" data-distance="48" data-fit="96" data-index="6" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="security analyst– 4-month internship/coop (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Intact</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)"><strong>~48 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Security Analyst– 4-month Internship/Coop (Winter 2027)</td><td class="cell-location">Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=7a7ddb23ec360156" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="72" data-company="intact" data-date="2026-09-10" data-distance="48" data-fit="90" data-index="7" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="information systems analyst– 4-month internship/coop (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Intact</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)"><strong>~48 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Information Systems Analyst– 4-month Internship/Coop (Winter 2027)</td><td class="cell-location">Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=f63d2d294d5f0d96" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="78" data-company="intact" data-date="2026-09-10" data-distance="48" data-fit="85" data-index="8" data-overall="84" data-pay="25.00" data-prestige="82" data-region="gta core" data-role="it technical advisor i – 4-month internship/co-op (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Intact</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)"><strong>~48 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> IT Technical Advisor I – 4-Month Internship/Co-op (Winter 2027)</td><td class="cell-location">Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=b5d14b77dfb6e9ef" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="78" data-company="intact" data-date="2026-09-10" data-distance="48" data-fit="85" data-index="9" data-overall="84" data-pay="25.00" data-prestige="82" data-region="gta core" data-role="devops i - 4 months co-op/internship (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Intact</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)"><strong>~48 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> DevOps I - 4 months Co-op/Internship (Winter 2027)</td><td class="cell-location">Downtown Toronto, ON (700 University Ave Tech Hub - ~48 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=67c3fb0af1f207fa" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="bmo financial group" data-date="2026-09-10" data-distance="49" data-fit="96" data-index="10" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="junior cybersecurity intern, winter 2027 (co-op/internship) - 4 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>BMO Financial Group</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)"><strong>~49 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Junior Cybersecurity Intern, Winter 2027 (Co-op/Internship) - 4 Months</td><td class="cell-location">Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=1a3cca05c681a039" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="linkedin" data-chance="65" data-company="bank of montreal (bmo)" data-date="2026-08-29" data-distance="49" data-fit="88" data-index="11" data-overall="89" data-pay="32.00" data-prestige="92" data-region="gta core" data-role="junior technical / systems co-op (winter 2027)" data-status="Drafted"><td class="cell-date">2026-08-29</td><td class="cell-company"><strong>Bank of Montreal (BMO)</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)"><strong>~49 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>89</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-moderate">65% <span class="chance-label-text">(Mod)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Junior Technical / Systems Co-op (Winter 2027)</td><td class="cell-location">Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">88%</span></td><td class="cell-pay"><span class="pay-tag">$30.00 – $34.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-drafted">Drafted</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-linkedin">LinkedIn</span> <a class="link-btn posting" href="https://ca.linkedin.com/jobs/view/junior-software-developer-winter-2027-co-op-internship-4-months-at-bmo-4457014214" target="_blank">Posting</a> • <a class="link-btn cv" href="../cv/main_BMO_Junior_Software_Systems_Coop.pdf" target="_blank">CV</a> • <a class="link-btn cl" href="../cover_letters/cover_BMO_Junior_Software_Systems_Coop.pdf" target="_blank">Cover Letter</a></td></tr><tr data-board="indeed" data-chance="72" data-company="bmo financial group" data-date="2026-09-10" data-distance="49" data-fit="90" data-index="12" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="database analyst, winter 2027 (co-op/internship) - 8 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>BMO Financial Group</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)"><strong>~49 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Database Analyst, Winter 2027 (Co-op/Internship) - 8 months</td><td class="cell-location">Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=a250a2e65802befd" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="72" data-company="bmo financial group" data-date="2026-09-10" data-distance="49" data-fit="90" data-index="13" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="hardware asset management analyst, winter 2027 (co-op/internship) - 8 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>BMO Financial Group</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)"><strong>~49 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Hardware Asset Management Analyst, Winter 2027 (Co-op/Internship) - 8 months</td><td class="cell-location">Downtown Toronto, ON (BMO Urban Campus - ~49 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=77c34f748a01b3f4" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="direct" data-chance="70" data-company="kpmg" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="14" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="risk services - cyber security co-op (4-month winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>KPMG</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Bay Adelaide Centre - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Risk Services - Cyber Security Co-op (4-Month Winter 2027)</td><td class="cell-location">Toronto Financial District, ON (Bay Adelaide Centre - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-direct">Direct</span> <a class="link-btn posting" href="kpmg-d819ff6694bedd6a2630f03ca3e4a82f" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="eluta" data-chance="70" data-company="kpmg llp canada" data-date="2026-08-29" data-distance="50" data-fit="96" data-index="15" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="risk services - cyber security co-op (4-month winter 2027)" data-status="Drafted"><td class="cell-date">2026-08-29</td><td class="cell-company"><strong>KPMG LLP Canada</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Bay Adelaide Centre - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Risk Services - Cyber Security Co-op (4-Month Winter 2027)</td><td class="cell-location">Toronto Financial District, ON (Bay Adelaide Centre - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-drafted">Drafted</span></td><td class="cell-deadline">2026-09-18</td><td class="cell-actions"><span class="board-badge badge-eluta">Eluta</span> <a class="link-btn posting" href="https://www.eluta.ca/spl/job-d819ff6694bedd6a2630f03ca3e4a82f" target="_blank">Posting</a> • <a class="link-btn cv" href="../cv/main_KPMG_Cyber_Security_Coop_Winter_2027.pdf" target="_blank">CV</a> • <a class="link-btn cl" href="../cover_letters/cover_KPMG_Cyber_Security_Coop_Winter_2027.pdf" target="_blank">Cover Letter</a></td></tr><tr data-board="indeed" data-chance="70" data-company="omers" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="16" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="student analyst, ot cybersecurity (winter 2027, 4 months)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>OMERS</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (EY Tower - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Student Analyst, OT Cybersecurity (Winter 2027, 4 Months)</td><td class="cell-location">Toronto Financial District, ON (EY Tower - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=001006aa86fc75b5" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="quadreal" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="17" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="cyber security, winter 2027 - toronto (co-op/internship) - 4 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>QuadReal</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Commerce Court - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Cyber Security, Winter 2027 - Toronto (Co-op/Internship) - 4 Months</td><td class="cell-location">Toronto Financial District, ON (Commerce Court - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=0eec049057df595f" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="scotiabank" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="18" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="velocity - corporate security internship/co-op - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Scotiabank</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Velocity - Corporate Security Internship/Co-op - Winter 2027</td><td class="cell-location">Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=d46be096380cc655" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="scotiabank" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="19" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="velocity - cloud engineer internship/co-op - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Scotiabank</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Velocity - Cloud Engineer Internship/Co-Op - Winter 2027</td><td class="cell-location">Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=dea2957bb7b31737" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="scotiabank (velocity enterprise technology - cloud architecture group)" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="20" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="velocity - cloud engineer internship/co-op - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Scotiabank (Velocity Enterprise Technology - Cloud Architecture Group)</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Velocity - Cloud Engineer Internship/Co-Op - Winter 2027</td><td class="cell-location">Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">2026-09-25</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=38c11930263659db" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="td" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="21" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="cyber security intern/co-op (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>TD</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (TD Centre - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Cyber Security Intern/Co-op (Winter 2027)</td><td class="cell-location">Toronto Financial District, ON (TD Centre - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=3319278ecd974198" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="70" data-company="td" data-date="2026-09-10" data-distance="50" data-fit="96" data-index="22" data-overall="93" data-pay="31.00" data-prestige="90" data-region="gta core" data-role="cloud/devops intern/co-op​ (winter 2027)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>TD</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (TD Centre - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>93</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier1">★★★★★ <span class="prestige-tier-text">Tier 1</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">70% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Cloud/DevOps Intern/Co-op​ (Winter 2027)</td><td class="cell-location">Toronto Financial District, ON (TD Centre - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">96%</span></td><td class="cell-pay"><span class="pay-tag">$29.00 – $33.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=7c2cc1a07c5c177f" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="75" data-company="quadreal" data-date="2026-09-10" data-distance="50" data-fit="94" data-index="23" data-overall="90" data-pay="28.00" data-prestige="86" data-region="gta core" data-role="service desk, winter 2027 - toronto (co-op/internship) - 4 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>QuadReal</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Commerce Court - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-a"><strong>90</strong> <span class="overall-grade-tag">A-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">75% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Service Desk, Winter 2027 - Toronto (Co-op/Internship) - 4 Months</td><td class="cell-location">Toronto Financial District, ON (Commerce Court - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">94%</span></td><td class="cell-pay"><span class="pay-tag">$26.00 – $30.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=e59080fb506e12d2" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="72" data-company="deloitte" data-date="2026-09-10" data-distance="50" data-fit="90" data-index="24" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="analyst, deloitte technology canada - winter 2027 co-op/intern (4- 8 months) - multiple locations" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Deloitte</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Bay Adelaide East - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Analyst, Deloitte Technology Canada - Winter 2027 Co-op/Intern (4- 8 months) - Multiple Locations</td><td class="cell-location">Toronto Financial District, ON (Bay Adelaide East - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=26d1d1591dcac5ef" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="72" data-company="sggg fund services inc." data-date="2026-09-10" data-distance="50" data-fit="90" data-index="25" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="technical &amp; hardware support analyst co-op - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>SGGG Fund Services Inc.</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (121 King St W - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Technical &amp; Hardware Support Analyst Co-op - Winter 2027</td><td class="cell-location">Toronto Financial District, ON (121 King St W - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=d2ae85fc4f2c64b0" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="78" data-company="bank of canada" data-date="2026-09-10" data-distance="50" data-fit="85" data-index="26" data-overall="84" data-pay="25.00" data-prestige="82" data-region="gta core" data-role="2027 winter- student work placement - it and cyber 1" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Bank of Canada</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District / Remote Flex, ON (Bank of Canada - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> 2027 Winter- Student Work Placement - IT and Cyber 1</td><td class="cell-location">Toronto Financial District / Remote Flex, ON (Bank of Canada - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=76b53b23a70cdc1a" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="78" data-company="mackenzie investments" data-date="2026-09-10" data-distance="50" data-fit="85" data-index="27" data-overall="84" data-pay="25.00" data-prestige="82" data-region="gta core" data-role="winter intern 2027 - technology engineering (toronto office)" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Mackenzie Investments</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (180 Queen St W - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Winter Intern 2027 - Technology Engineering (Toronto Office)</td><td class="cell-location">Downtown Toronto, ON (180 Queen St W - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=40d510a4d2561ee6" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="indeed" data-chance="78" data-company="scotiabank" data-date="2026-09-10" data-distance="50" data-fit="85" data-index="28" data-overall="84" data-pay="25.00" data-prestige="82" data-region="gta core" data-role="velocity - devops engineer- capital markets internship/co-op 12-16 months - winter 2027" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Scotiabank</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)"><strong>~50 km</strong> <span class="prox-label">Financial District</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Velocity - DevOps Engineer- Capital Markets Internship/Co-op 12-16 Months - Winter 2027</td><td class="cell-location">Toronto Financial District, ON (Scotia Plaza - ~50 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=dd2e95699e5024fc" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="linkedin" data-chance="72" data-company="rbc" data-date="2026-09-10" data-distance="51" data-fit="90" data-index="29" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="2027 winter student opportunities technology &amp; operations - technical systems analyst, 4-12 months" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>RBC</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (WaterPark Place &amp; RBC Centre - ~51 km from Newmarket)"><strong>~51 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> 2027 Winter Student Opportunities Technology &amp; Operations - Technical Systems Analyst, 4-12 Months</td><td class="cell-location">Downtown Toronto, ON (WaterPark Place &amp; RBC Centre - ~51 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">2026-09-20</td><td class="cell-actions"><span class="board-badge badge-linkedin">LinkedIn</span> <a class="link-btn posting" href="linkedin-4455346737" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr><tr data-board="linkedin" data-chance="72" data-company="royal bank of canada (rbc)" data-date="2026-08-29" data-distance="51" data-fit="90" data-index="30" data-overall="88" data-pay="29.00" data-prestige="88" data-region="gta core" data-role="2027 winter student opportunities - technical systems analyst" data-status="Drafted"><td class="cell-date">2026-08-29</td><td class="cell-company"><strong>Royal Bank of Canada (RBC)</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Downtown Toronto, ON (WaterPark Place &amp; RBC Centre - ~51 km from Newmarket)"><strong>~51 km</strong> <span class="prox-label">Downtown</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>88</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier2">★★★★☆ <span class="prestige-tier-text">Tier 2</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">72% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> 2027 Winter Student Opportunities - Technical Systems Analyst</td><td class="cell-location">Downtown Toronto, ON (WaterPark Place &amp; RBC Centre - ~51 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">90%</span></td><td class="cell-pay"><span class="pay-tag">$27.00 – $31.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-drafted">Drafted</span></td><td class="cell-deadline">2026-09-20</td><td class="cell-actions"><span class="board-badge badge-linkedin">LinkedIn</span> <a class="link-btn posting" href="https://ca.linkedin.com/jobs/view/2027-winter-student-opportunities-technology-operations-technical-systems-analyst-4-12-months-at-rbc-4455346737" target="_blank">Posting</a> • <a class="link-btn cv" href="../cv/main_RBC_Technical_Systems_Analyst.pdf" target="_blank">CV</a> • <a class="link-btn cl" href="../cover_letters/cover_RBC_Technical_Systems_Analyst.pdf" target="_blank">Cover Letter</a></td></tr><tr data-board="indeed" data-chance="78" data-company="ontario power generation" data-date="2026-09-10" data-distance="65" data-fit="85" data-index="31" data-overall="84" data-pay="25.00" data-prestige="82" data-region="durham region" data-role="winter 2027 - co-op - computer science &amp; it - durham region" data-status="Scraped"><td class="cell-date">2026-09-10</td><td class="cell-company"><strong>Ontario Power Generation</strong></td><td class="cell-distance"><span class="badge-proximity prox-gta" title="Pickering/Darlington, ON (OPG Campus - ~65 km from Newmarket)"><strong>~65 km</strong> <span class="prox-label">Durham Region</span></span></td><td class="cell-overall"><span class="badge-overall overall-b"><strong>84</strong> <span class="overall-grade-tag">B-Tier</span></span></td><td class="cell-prestige"><span class="badge-prestige prestige-tier3">★★★☆☆ <span class="prestige-tier-text">Tier 3</span></span></td><td class="cell-chance"><span class="badge-chance chance-high">78% <span class="chance-label-text">(High)</span></span></td><td class="cell-role"><span class="board-badge badge-jobbank" style="font-size:0.68rem; margin-right:4px;">❄️ Winter 2027</span> Winter 2027 - Co-Op - Computer Science &amp; IT - Durham Region</td><td class="cell-location">Pickering/Darlington, ON (OPG Campus - ~65 km from Newmarket)</td><td class="cell-fit"><span class="fit-score">85%</span></td><td class="cell-pay"><span class="pay-tag">$24.00 – $27.00/hr <span style="font-size:0.75em;opacity:0.8;">(Co-op)</span></span></td><td class="cell-status"><span class="badge badge-scraped">Scraped</span></td><td class="cell-deadline">Rolling</td><td class="cell-actions"><span class="board-badge badge-indeed">Indeed</span> <a class="link-btn posting" href="https://ca.indeed.com/viewjob?jk=6c2555eb80723a03" target="_blank">Posting</a> • <span class="link-btn pending" title="Run /apply to draft tailored CV and cover letter">To Apply</span></td></tr></tbody>
+</table>
+</div>
+</div>
+<footer>
+    Automated IT/Systems Search Engine • Refreshed silently in background • Geocoded relative to Newmarket, ON
+  </footer>
+</div>
+<script>
+// Theme Management
+const themeToggleBtn = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const themeText = document.getElementById('theme-text');
+const htmlEl = document.documentElement;
+
+function setTheme(theme) {
+  htmlEl.setAttribute('data-theme', theme);
+  localStorage.setItem('dashboard_theme', theme);
+  if (theme === 'dark') {
+    themeIcon.textContent = '☀️';
+    themeText.textContent = 'Light Mode';
+  } else {
+    themeIcon.textContent = '🌙';
+    themeText.textContent = 'Dark Mode';
+  }
+}
+
+const savedTheme = localStorage.getItem('dashboard_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+setTheme(savedTheme);
+
+themeToggleBtn.addEventListener('click', () => {
+  const current = htmlEl.getAttribute('data-theme');
+  setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+
+// Table Filtering and Sorting
+const searchBox = document.getElementById('search-box');
+const statusFilter = document.getElementById('status-filter');
+const regionFilter = document.getElementById('region-filter');
+const sortSelect = document.getElementById('sort-select');
+const tbody = document.getElementById('table-body');
+const showingCount = document.getElementById('showing-count');
+const ths = document.querySelectorAll('th[data-col]');
+
+// Job Board Multi-Select Elements
+const boardSelectBtn = document.getElementById('board-select-btn');
+const boardBtnText = document.getElementById('board-btn-text');
+const boardMenu = document.getElementById('board-menu');
+const boardCheckboxes = document.querySelectorAll('.board-checkbox');
+const boardAllBtn = document.getElementById('board-all-btn');
+const boardNoneBtn = document.getElementById('board-none-btn');
+const boardOnlyBtns = document.querySelectorAll('.board-only-btn');
+const quickChips = document.querySelectorAll('.quick-chip');
+
+let currentSortCol = 'distance';
+let currentSortDir = 'asc';
+
+// Board selection state
+const allBoardValues = ['indeed', 'jobbank', 'linkedin', 'talent', 'eluta', 'gcjobs', 'techto', 'direct'];
+let selectedBoards = new Set(allBoardValues);
+
+const savedBoards = localStorage.getItem('dashboard_boards');
+if (savedBoards) {
+  try {
+    const parsed = JSON.parse(savedBoards);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      selectedBoards = new Set(parsed);
+      boardCheckboxes.forEach(cb => {
+        cb.checked = selectedBoards.has(cb.value);
+      });
+    }
+  } catch (e) {}
+}
+
+function updateBoardButtonText() {
+  if (!boardBtnText) return;
+  if (selectedBoards.size === allBoardValues.length || selectedBoards.size === 0) {
+    boardBtnText.textContent = '🌐 Job Boards (All)';
+  } else if (selectedBoards.size === 1) {
+    const b = Array.from(selectedBoards)[0];
+    const nameMap = { indeed: 'Indeed', jobbank: 'Jobs Canada', linkedin: 'LinkedIn', talent: 'Talent.com', eluta: 'Eluta', gcjobs: 'GC Jobs', direct: 'Direct' };
+    boardBtnText.textContent = `🎯 Board: ${nameMap[b] || b}`;
+  } else {
+    boardBtnText.textContent = `🎯 Boards (${selectedBoards.size} selected)`;
+  }
+}
+
+function updateQuickChipActive() {
+  quickChips.forEach(chip => {
+    const preset = chip.getAttribute('data-preset');
+    let isActive = false;
+    if (preset === 'all' && selectedBoards.size === allBoardValues.length) {
+      isActive = true;
+    } else if (preset === 'indeed' && selectedBoards.size === 1 && selectedBoards.has('indeed')) {
+      isActive = true;
+    } else if (preset === 'jobbank' && selectedBoards.size === 1 && selectedBoards.has('jobbank')) {
+      isActive = true;
+    } else if (preset === 'indeed-jobbank' && selectedBoards.size === 2 && selectedBoards.has('indeed') && selectedBoards.has('jobbank')) {
+      isActive = true;
+    } else if (preset === 'linkedin' && selectedBoards.size === 1 && selectedBoards.has('linkedin')) {
+      isActive = true;
+    } else if (preset === 'talent' && selectedBoards.size === 1 && selectedBoards.has('talent')) {
+      isActive = true;
+    } else if (preset === 'eluta' && selectedBoards.size === 1 && selectedBoards.has('eluta')) {
+      isActive = true;
+    }
+    chip.classList.toggle('active', isActive);
+  });
+}
+
+// Toggle board menu popup
+if (boardSelectBtn && boardMenu) {
+  boardSelectBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    boardMenu.classList.toggle('hidden');
+    boardSelectBtn.classList.toggle('active', !boardMenu.classList.contains('hidden'));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('board-filter-wrapper')?.contains(e.target)) {
+      boardMenu.classList.add('hidden');
+      boardSelectBtn.classList.remove('active');
+    }
+  });
+}
+
+// Board Checkbox event handlers
+boardCheckboxes.forEach(cb => {
+  cb.addEventListener('change', () => {
+    if (cb.checked) {
+      selectedBoards.add(cb.value);
+    } else {
+      selectedBoards.delete(cb.value);
+    }
+    if (selectedBoards.size === 0) {
+      // If user unchecks all, default to all to avoid empty confusion
+      selectedBoards = new Set(allBoardValues);
+      boardCheckboxes.forEach(c => c.checked = true);
+    }
+    saveAndApplyBoardFilter();
+  });
+});
+
+boardAllBtn?.addEventListener('click', () => {
+  selectedBoards = new Set(allBoardValues);
+  boardCheckboxes.forEach(cb => cb.checked = true);
+  saveAndApplyBoardFilter();
+});
+
+boardNoneBtn?.addEventListener('click', () => {
+  // Clear to only indeed
+  selectedBoards = new Set(['indeed']);
+  boardCheckboxes.forEach(cb => cb.checked = cb.value === 'indeed');
+  saveAndApplyBoardFilter();
+});
+
+boardOnlyBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const target = btn.getAttribute('data-board');
+    selectedBoards = new Set([target]);
+    boardCheckboxes.forEach(cb => cb.checked = cb.value === target);
+    saveAndApplyBoardFilter();
+  });
+});
+
+quickChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    const preset = chip.getAttribute('data-preset');
+    if (preset === 'all') {
+      selectedBoards = new Set(allBoardValues);
+    } else if (preset === 'indeed') {
+      selectedBoards = new Set(['indeed']);
+    } else if (preset === 'jobbank') {
+      selectedBoards = new Set(['jobbank']);
+    } else if (preset === 'indeed-jobbank') {
+      selectedBoards = new Set(['indeed', 'jobbank']);
+    } else if (preset === 'linkedin') {
+      selectedBoards = new Set(['linkedin']);
+    } else if (preset === 'talent') {
+      selectedBoards = new Set(['talent']);
+    } else if (preset === 'eluta') {
+      selectedBoards = new Set(['eluta']);
+    }
+    boardCheckboxes.forEach(cb => cb.checked = selectedBoards.has(cb.value));
+    saveAndApplyBoardFilter();
+  });
+});
+
+function saveAndApplyBoardFilter() {
+  localStorage.setItem('dashboard_boards', JSON.stringify(Array.from(selectedBoards)));
+  updateBoardButtonText();
+  updateQuickChipActive();
+  filterAndSort();
+}
+
+function getRows() {
+  return Array.from(tbody.querySelectorAll('tr'));
+}
+
+function getRowBoard(row) {
+  let b = row.getAttribute('data-board');
+  if (b) return b;
+  const href = (row.querySelector('a.posting')?.getAttribute('href') || '').toLowerCase();
+  if (href.includes('indeed')) return 'indeed';
+  if (href.includes('jobbank') || href.includes('guichet') || href.includes('jobs.gc.ca')) return 'jobbank';
+  if (href.includes('linkedin')) return 'linkedin';
+  if (href.includes('talent.com')) return 'talent';
+  if (href.includes('eluta')) return 'eluta';
+  if (href.includes('emploisfp') || href.includes('canada.ca') || href.includes('cfp-psc')) return 'gcjobs';
+  if (href.includes('techto')) return 'techto';
+  return 'direct';
+}
+
+function filterAndSort() {
+  const query = searchBox.value.toLowerCase().trim();
+  const status = statusFilter.value;
+  const region = regionFilter.value.toLowerCase();
+  
+  localStorage.setItem('dashboard_search', searchBox.value);
+  localStorage.setItem('dashboard_status', status);
+  localStorage.setItem('dashboard_region', regionFilter.value);
+  localStorage.setItem('dashboard_sort', `${currentSortCol}-${currentSortDir}`);
+
+  const allRows = getRows();
+  let visibleCount = 0;
+
+  allRows.forEach(row => {
+    const rowText = row.innerText.toLowerCase();
+    const rowStatus = row.getAttribute('data-status');
+    const rowRegion = (row.getAttribute('data-region') || '').toLowerCase();
+    const rowBoard = getRowBoard(row);
+    
+    const matchesQuery = !query || rowText.includes(query);
+    const matchesStatus = status === 'ALL' || 
+      (rowStatus && rowStatus.toLowerCase() === status.toLowerCase()) || 
+      (status === 'Rejected/Closed' && (rowStatus === 'Closed' || rowStatus === 'Rejected'));
+    const matchesRegion = region === 'all' || rowRegion.includes(region);
+    const matchesBoard = selectedBoards.has(rowBoard);
+
+    if (matchesQuery && matchesStatus && matchesRegion && matchesBoard) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+
+  showingCount.textContent = `Showing ${visibleCount} of ${allRows.length} listings`;
+
+  // Sort visible rows
+  allRows.sort((a, b) => {
+    let diff = 0;
+    if (currentSortCol === 'distance') {
+      const valA = parseFloat(a.getAttribute('data-distance') || 0);
+      const valB = parseFloat(b.getAttribute('data-distance') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'fit') {
+      const valA = parseInt(a.getAttribute('data-fit') || 0);
+      const valB = parseInt(b.getAttribute('data-fit') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'overall') {
+      const valA = parseInt(a.getAttribute('data-overall') || 0);
+      const valB = parseInt(b.getAttribute('data-overall') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'chance') {
+      const valA = parseInt(a.getAttribute('data-chance') || 0);
+      const valB = parseInt(b.getAttribute('data-chance') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'prestige') {
+      const valA = parseInt(a.getAttribute('data-prestige') || 0);
+      const valB = parseInt(b.getAttribute('data-prestige') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'pay') {
+      const valA = parseFloat(a.getAttribute('data-pay') || 0);
+      const valB = parseFloat(b.getAttribute('data-pay') || 0);
+      diff = currentSortDir === 'asc' ? (valA - valB) : (valB - valA);
+    } else if (currentSortCol === 'date') {
+      const valA = a.getAttribute('data-date') || '';
+      const valB = b.getAttribute('data-date') || '';
+      diff = currentSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    } else if (currentSortCol === 'company') {
+      const valA = a.getAttribute('data-company') || '';
+      const valB = b.getAttribute('data-company') || '';
+      diff = currentSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    } else if (currentSortCol === 'role') {
+      const valA = a.getAttribute('data-role') || '';
+      const valB = b.getAttribute('data-role') || '';
+      diff = currentSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    } else {
+      const valA = a.getAttribute(`data-${currentSortCol}`) || '';
+      const valB = b.getAttribute(`data-${currentSortCol}`) || '';
+      diff = currentSortDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    }
+
+    if (diff !== 0) return diff;
+
+    // Robust tie-breakers when values match (e.g. same distance):
+    // 1. Overall score descending
+    const ovA = parseInt(a.getAttribute('data-overall') || 0);
+    const ovB = parseInt(b.getAttribute('data-overall') || 0);
+    if (ovA !== ovB) return ovB - ovA;
+
+    // 2. Fit score descending
+    const fitA = parseInt(a.getAttribute('data-fit') || 0);
+    const fitB = parseInt(b.getAttribute('data-fit') || 0);
+    if (fitA !== fitB) return fitB - fitA;
+
+    // 3. Company name A-Z
+    const compA = a.getAttribute('data-company') || '';
+    const compB = b.getAttribute('data-company') || '';
+    return compA.localeCompare(compB);
+  });
+
+  allRows.forEach(row => tbody.appendChild(row));
+
+  // Update headers
+  ths.forEach(th => {
+    const col = th.getAttribute('data-col');
+    const icon = th.querySelector('.sort-icon');
+    if (col === currentSortCol) {
+      th.classList.add('active-sort');
+      if (icon) icon.textContent = currentSortDir === 'asc' ? '↑' : '↓';
+    } else {
+      th.classList.remove('active-sort');
+      if (icon) icon.textContent = '↕';
+    }
+  });
+}
+
+
+// Event Listeners for Filters & Sorting Controls
+if (sortSelect) {
+  sortSelect.addEventListener('change', () => {
+    const val = sortSelect.value;
+    const parts = val.split('-');
+    currentSortCol = parts[0] || 'distance';
+    currentSortDir = parts[1] || 'asc';
+    filterAndSort();
+  });
+}
+
+ths.forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.getAttribute('data-col');
+    if (!col) return;
+    if (currentSortCol === col) {
+      currentSortDir = (currentSortDir === 'asc') ? 'desc' : 'asc';
+    } else {
+      currentSortCol = col;
+      currentSortDir = ['overall', 'fit', 'chance', 'prestige', 'pay', 'date'].includes(col) ? 'desc' : 'asc';
+    }
+    const matchingOption = `${currentSortCol}-${currentSortDir}`;
+    if (sortSelect && sortSelect.querySelector(`option[value="${matchingOption}"]`)) {
+      sortSelect.value = matchingOption;
+    }
+    filterAndSort();
+  });
+});
+
+if (searchBox) {
+  searchBox.addEventListener('input', () => {
+    filterAndSort();
+  });
+}
+
+if (statusFilter) {
+  statusFilter.addEventListener('change', () => {
+    filterAndSort();
+  });
+}
+
+if (regionFilter) {
+  regionFilter.addEventListener('change', () => {
+    filterAndSort();
+  });
+}
+
+// Restore saved settings
+const savedSearch = localStorage.getItem('dashboard_search');
+if (savedSearch && searchBox) searchBox.value = savedSearch;
+
+const savedStatus = localStorage.getItem('dashboard_status');
+if (savedStatus && statusFilter) statusFilter.value = savedStatus;
+
+const savedRegion = localStorage.getItem('dashboard_region');
+if (savedRegion && regionFilter) regionFilter.value = savedRegion;
+
+const savedSort = localStorage.getItem('dashboard_sort');
+if (savedSort) {
+  const [sCol, sDir] = savedSort.split('-');
+  if (sCol && sDir) {
+    currentSortCol = sCol;
+    currentSortDir = sDir;
+    if (sortSelect && sortSelect.querySelector(`option[value="${savedSort}"]`)) {
+      sortSelect.value = savedSort;
+    }
+  }
+}
+
+updateBoardButtonText();
+updateQuickChipActive();
+filterAndSort();
+
+// Silent Background Auto-Refresh (Every 30 seconds)
+setInterval(async () => {
+  try {
+    const scrollPos = window.scrollY;
+    const res = await fetch(window.location.href, { cache: 'no-store' });
+    if (res.ok) {
+      const text = await res.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, 'text/html');
+      
+      const newTbody = doc.getElementById('table-body');
+      const newStatGrid = doc.querySelector('.stat-grid');
+      const newGenDate = doc.querySelector('.gen-date');
+
+      if (newTbody && newStatGrid) {
+        tbody.innerHTML = newTbody.innerHTML;
+        document.querySelector('.stat-grid').innerHTML = newStatGrid.innerHTML;
+        if (newGenDate) document.querySelector('.gen-date').innerHTML = newGenDate.innerHTML;
+        filterAndSort();
+        window.scrollTo(0, scrollPos);
+      }
+    }
+  } catch (e) {
+    // Fail silently without interrupting UI
+  }
+}, 30000);
+</script>
+</body>
+</html>
