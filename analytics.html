@@ -406,45 +406,84 @@ h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); display: flex; ali
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* System Flowchart Diagram */
-.system-flowchart {
+/* Autonomous Engine Pipeline Architecture (Clean Vertical Flow - No Scrollbars) */
+.pipeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pipeline-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 14px 4px;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--row-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
-.flow-node {
+.pipeline-item:hover {
+  background: var(--row-hover);
+  border-color: var(--status-active);
+}
+.pipeline-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-  min-width: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.pipeline-content {
   flex: 1;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-  position: relative;
+  min-width: 0;
 }
-.flow-node-icon {
-  font-size: 1.5rem;
-  margin-bottom: 6px;
+.pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+  flex-wrap: wrap;
+  gap: 4px;
 }
-.flow-node-title {
+.pipeline-title {
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
 }
-.flow-node-subtitle {
-  font-size: 0.75rem;
+.pipeline-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tag-swarm { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.3); }
+.tag-geo { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+.tag-rag { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+.tag-latex { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.tag-ci { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.pipeline-desc {
+  font-size: 0.77rem;
   color: var(--text-muted);
+  line-height: 1.35;
 }
-.flow-arrow {
-  font-size: 1.3rem;
+.pipeline-connector-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 8px;
   color: var(--status-active);
-  font-weight: bold;
-  flex-shrink: 0;
+  font-size: 0.75rem;
+  opacity: 0.7;
 }
 
 /* Leaflet Custom Popups */
@@ -622,6 +661,24 @@ footer {
     </div>
   </section>
 
+  <!-- Total Jobs Scraped Over Time (Multi-Portal Swarm Telemetry) -->
+  <section class="dashboard-section" style="margin-top: 24px;">
+    <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 class="section-title"><span>📡</span> Total Jobs Scraped Over Time</h2>
+        <div class="section-desc">Multi-portal swarm ingestion progression tracking 944 deduplicated postings across Indeed Canada, LinkedIn, Talent.com, Eluta, and Job Bank with daily crawl intake and Winter intake qualification.</div>
+      </div>
+      <div class="chart-toggle-group">
+        <button id="btn-scrape-both" class="chart-toggle-btn active" onclick="switchScrapedView('both')">Cumulative + Daily</button>
+        <button id="btn-scrape-cum" class="chart-toggle-btn" onclick="switchScrapedView('cum')">Cumulative Growth (944)</button>
+        <button id="btn-scrape-daily" class="chart-toggle-btn" onclick="switchScrapedView('daily')">Daily Batches</button>
+      </div>
+    </div>
+    <div class="chart-wrapper" style="height: 330px;">
+      <canvas id="chart-scraped-history"></canvas>
+    </div>
+  </section>
+
   <!-- Stats Over Time (2-Column Grid) -->
   <div class="grid-2col">
     <section class="dashboard-section" style="margin-bottom:0;">
@@ -722,35 +779,68 @@ footer {
           <div class="section-desc">End-to-end multi-agent execution pipeline orchestrating scraping, evaluation, and deployment.</div>
         </div>
       </div>
-      <div class="system-flowchart">
-        <div class="flow-node">
-          <div class="flow-node-icon">🕷️</div>
-          <div class="flow-node-title">1. Multi-Portal Swarm</div>
-          <div class="flow-node-subtitle">944 scanned across 6 job boards</div>
+      <div class="pipeline-list">
+        <div class="pipeline-item">
+          <div class="pipeline-icon-box">🕷️</div>
+          <div class="pipeline-content">
+            <div class="pipeline-header">
+              <span class="pipeline-title">1. Multi-Portal Swarm Crawlers</span>
+              <span class="pipeline-tag tag-swarm">944 Ingested</span>
+            </div>
+            <div class="pipeline-desc">Concurrent worker agents across Indeed, LinkedIn, Talent.com, Eluta, and Job Bank with atomic state deduplication.</div>
+          </div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-node">
-          <div class="flow-node-icon">📍</div>
-          <div class="flow-node-title">2. Proximity Engine</div>
-          <div class="flow-node-subtitle">GPS distance from Newmarket &amp; commute zoning</div>
+
+        <div class="pipeline-connector-line">↓</div>
+
+        <div class="pipeline-item">
+          <div class="pipeline-icon-box">📍</div>
+          <div class="pipeline-content">
+            <div class="pipeline-header">
+              <span class="pipeline-title">2. Proximity &amp; Commute Engine</span>
+              <span class="pipeline-tag tag-geo">Newmarket Origin</span>
+            </div>
+            <div class="pipeline-desc">Deterministic GPS distance calculations categorizing York Region (&lt;30 km) and GTA Core (&le;50 km) boundaries.</div>
+          </div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🤖</div>
-          <div class="flow-node-title">3. Evaluation &amp; RAG</div>
-          <div class="flow-node-subtitle">Curriculum retrieval &amp; fit scoring</div>
+
+        <div class="pipeline-connector-line">↓</div>
+
+        <div class="pipeline-item">
+          <div class="pipeline-icon-box">🤖</div>
+          <div class="pipeline-content">
+            <div class="pipeline-header">
+              <span class="pipeline-title">3. Curriculum RAG Evaluation</span>
+              <span class="pipeline-tag tag-rag">Seneca CPET</span>
+            </div>
+            <div class="pipeline-desc">Zero-cache retrieval mapping candidate coursework (routing, Linux, AD, VMware) to posting requirements.</div>
+          </div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-node">
-          <div class="flow-node-icon">📝</div>
-          <div class="flow-node-title">4. LaTeX Tailoring</div>
-          <div class="flow-node-subtitle">Drafter/reviewer 2-agent verification</div>
+
+        <div class="pipeline-connector-line">↓</div>
+
+        <div class="pipeline-item">
+          <div class="pipeline-icon-box">📝</div>
+          <div class="pipeline-content">
+            <div class="pipeline-header">
+              <span class="pipeline-title">4. LaTeX Dual-Agent Tailoring</span>
+              <span class="pipeline-tag tag-latex">Drafter / Reviewer</span>
+            </div>
+            <div class="pipeline-desc">Synthesizes company-tailored CVs and cover letters backed by verified academic laboratory evidence.</div>
+          </div>
         </div>
-        <div class="flow-arrow">➔</div>
-        <div class="flow-node">
-          <div class="flow-node-icon">🚀</div>
-          <div class="flow-node-title">5. Auto-Deploy</div>
-          <div class="flow-node-subtitle">GitHub Pages sync &amp; live reporting</div>
+
+        <div class="pipeline-connector-line">↓</div>
+
+        <div class="pipeline-item">
+          <div class="pipeline-icon-box">🚀</div>
+          <div class="pipeline-content">
+            <div class="pipeline-header">
+              <span class="pipeline-title">5. Auto-Deploy &amp; Live Verification</span>
+              <span class="pipeline-tag tag-ci">CI/CD Sync</span>
+            </div>
+            <div class="pipeline-desc">Automated git sync to GitHub Pages with headless browser test suite and live telemetry updates.</div>
+          </div>
         </div>
       </div>
 
@@ -832,6 +922,7 @@ let currentMap = null;
 let currentTileLayer = null;
 
 // Chart Instances
+let chartScrapedHistory = null;
 let chartVelocity = null;
 let chartCumulative = null;
 let chartDomain = null;
@@ -852,7 +943,7 @@ function setTheme(theme) {
   if (currentMap) {
     updateMapTiles(theme);
   }
-  if (chartVelocity) {
+  if (chartVelocity || chartScrapedHistory) {
     updateChartsTheme(theme);
   }
 }
@@ -1080,6 +1171,103 @@ function initCharts() {
   const theme = htmlEl.getAttribute('data-theme') || 'dark';
   const colors = getChartColors(theme);
 
+  // 0. Total Jobs Scraped Over Time (Mixed Line & Bar Chart)
+  const ctxScrapedHistory = document.getElementById('chart-scraped-history').getContext('2d');
+  chartScrapedHistory = new Chart(ctxScrapedHistory, {
+    type: 'bar',
+    data: {
+      labels: ['Aug 29', 'Aug 30', 'Sep 10', 'Sep 11', 'Sep 12', 'Sep 13', 'Sep 15', 'Sep 16'],
+      datasets: [
+        {
+          type: 'line',
+          label: 'Cumulative Jobs Scraped (944)',
+          data: [338, 368, 741, 877, 902, 905, 919, 944],
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139, 92, 246, 0.12)',
+          fill: true,
+          tension: 0.35,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointBackgroundColor: '#8b5cf6',
+          borderWidth: 3,
+          yAxisID: 'y',
+          order: 1
+        },
+        {
+          type: 'line',
+          label: 'Winter Intake Identified (364)',
+          data: [0, 0, 266, 360, 360, 361, 362, 364],
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.05)',
+          fill: false,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#06b6d4',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          yAxisID: 'y',
+          order: 2
+        },
+        {
+          type: 'bar',
+          label: 'Daily Batch Influx',
+          data: [338, 30, 373, 136, 25, 3, 14, 25],
+          backgroundColor: 'rgba(99, 102, 241, 0.65)',
+          hoverBackgroundColor: '#6366f1',
+          borderRadius: 6,
+          barPercentage: 0.5,
+          yAxisID: 'y1',
+          order: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { color: colors.text, font: { size: 12, weight: 600 }, padding: 14 }
+        },
+        tooltip: {
+          backgroundColor: colors.tooltipBg,
+          titleColor: colors.tooltipText,
+          bodyColor: colors.tooltipText,
+          borderColor: colors.border,
+          borderWidth: 1,
+          padding: 10
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: colors.grid },
+          ticks: { color: colors.text, font: { weight: 600 } }
+        },
+        y: {
+          position: 'left',
+          grid: { color: colors.grid },
+          ticks: { color: colors.text, stepSize: 200 },
+          title: { display: true, text: 'Cumulative Postings', color: colors.text, font: { weight: 600 } },
+          beginAtZero: true,
+          max: 1050
+        },
+        y1: {
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: { color: colors.text, stepSize: 100 },
+          title: { display: true, text: 'Daily Batch Intake', color: colors.text, font: { weight: 600 } },
+          beginAtZero: true,
+          max: 450
+        }
+      }
+    }
+  });
+
   // 1. Postings Discovered & Drafted Velocity (Bar Chart)
   const ctxVelocity = document.getElementById('chart-velocity').getContext('2d');
   chartVelocity = new Chart(ctxVelocity, {
@@ -1289,10 +1477,35 @@ function switchSourcesView(mode) {
   chartSources.update();
 }
 
+function switchScrapedView(mode) {
+  document.getElementById('btn-scrape-both')?.classList.toggle('active', mode === 'both');
+  document.getElementById('btn-scrape-cum')?.classList.toggle('active', mode === 'cum');
+  document.getElementById('btn-scrape-daily')?.classList.toggle('active', mode === 'daily');
+  if (!chartScrapedHistory) return;
+
+  if (mode === 'cum') {
+    chartScrapedHistory.data.datasets[0].hidden = false;
+    chartScrapedHistory.data.datasets[1].hidden = false;
+    chartScrapedHistory.data.datasets[2].hidden = true;
+    if (chartScrapedHistory.options.scales.y1) chartScrapedHistory.options.scales.y1.display = false;
+  } else if (mode === 'daily') {
+    chartScrapedHistory.data.datasets[0].hidden = true;
+    chartScrapedHistory.data.datasets[1].hidden = true;
+    chartScrapedHistory.data.datasets[2].hidden = false;
+    if (chartScrapedHistory.options.scales.y1) chartScrapedHistory.options.scales.y1.display = true;
+  } else {
+    chartScrapedHistory.data.datasets[0].hidden = false;
+    chartScrapedHistory.data.datasets[1].hidden = false;
+    chartScrapedHistory.data.datasets[2].hidden = false;
+    if (chartScrapedHistory.options.scales.y1) chartScrapedHistory.options.scales.y1.display = true;
+  }
+  chartScrapedHistory.update();
+}
+
 function updateChartsTheme(theme) {
-  if (!chartVelocity) return;
+  if (!chartVelocity && !chartScrapedHistory) return;
   const colors = getChartColors(theme);
-  const charts = [chartVelocity, chartCumulative, chartDomain, chartProximity, chartCompensation, chartSources];
+  const charts = [chartScrapedHistory, chartVelocity, chartCumulative, chartDomain, chartProximity, chartCompensation, chartSources];
   charts.forEach(chart => {
     if (!chart) return;
     if (chart.options.plugins?.legend?.labels) {
@@ -1301,10 +1514,16 @@ function updateChartsTheme(theme) {
     if (chart.options.scales?.x) {
       chart.options.scales.x.grid.color = colors.grid;
       chart.options.scales.x.ticks.color = colors.text;
+      if (chart.options.scales.x.title) chart.options.scales.x.title.color = colors.text;
     }
     if (chart.options.scales?.y) {
       chart.options.scales.y.grid.color = colors.grid;
       chart.options.scales.y.ticks.color = colors.text;
+      if (chart.options.scales.y.title) chart.options.scales.y.title.color = colors.text;
+    }
+    if (chart.options.scales?.y1) {
+      chart.options.scales.y1.ticks.color = colors.text;
+      if (chart.options.scales.y1.title) chart.options.scales.y1.title.color = colors.text;
     }
     chart.update();
   });
