@@ -109,6 +109,55 @@ h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); }
   gap: 12px;
 }
 
+/* Top Tab Navigation */
+.top-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+.nav-tab:hover {
+  background: var(--row-hover);
+  color: var(--text);
+  border-color: var(--border);
+}
+.nav-tab.active {
+  background: var(--status-active);
+  color: #ffffff;
+  border-color: var(--status-active);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+}
+.nav-tab .nav-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--border);
+  color: var(--text);
+}
+.nav-tab.active .nav-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+.nav-tab .nav-badge.new {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
 .theme-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -774,6 +823,16 @@ footer {
 </button>
 </div>
 </header>
+<nav class="top-nav">
+  <a href="index.html" class="nav-tab active">
+    <span class="nav-icon">📋</span> Job Listings
+    <span class="nav-badge">38</span>
+  </a>
+  <a href="analytics.html" class="nav-tab">
+    <span class="nav-icon">📊</span> Analytics &amp; KPIs
+    <span class="nav-badge new">New</span>
+  </a>
+</nav>
 <div class="stat-grid">
 <div class="stat-card total">
 <div class="stat-num" id="stat-num-total">38</div>
