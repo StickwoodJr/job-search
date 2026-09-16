@@ -648,9 +648,9 @@ footer {
         <span class="kpi-title">GTA Commute Reach</span>
         <span class="kpi-icon">📍</span>
       </div>
-      <div class="kpi-value">92.1%</div>
+      <div class="kpi-value">97.4%</div>
       <div class="kpi-subtext">
-        <span class="kpi-trend trend-up">35 of 38</span> &le;50 km of Newmarket (Avg 47.7 km)
+        <span class="kpi-trend trend-up">37 of 38</span> &le;50 km of Newmarket (Avg 47.7 km)
       </div>
     </div>
 
@@ -678,7 +678,7 @@ footer {
     <div class="map-legend">
       <div class="legend-item"><span class="legend-dot dot-home"></span> <strong>Home Base (Newmarket, ON)</strong></div>
       <div class="legend-item"><span class="legend-dot dot-tier1"></span> <strong>York Region (&lt;30 km)</strong>: IBM Software Lab, BGIS Markham</div>
-      <div class="legend-item"><span class="legend-dot dot-tier2"></span> <strong>GTA Core / Midtown (&le;50 km)</strong>: Financial District, 700 University Hub, S&amp;C Etobicoke</div>
+      <div class="legend-item"><span class="legend-dot dot-tier2"></span> <strong>GTA Core / Midtown (&le;50 km)</strong>: Financial District, RBC South Core, 700 University Hub, S&amp;C Etobicoke</div>
       <div class="legend-item"><span class="legend-dot dot-tier3"></span> <strong>Regional ON (&gt;50 km)</strong>: OPG Pickering Darlington (65 km)</div>
     </div>
   </section>
@@ -1130,13 +1130,13 @@ function initMap() {
     {
       name: "Royal Bank of Canada (RBC Centre & WaterPark Place)",
       coords: [43.6415, -79.3780],
-      km: "~51 km",
-      region: "Toronto South Core",
+      km: "~50 km",
+      region: "GTA Core (Toronto South Core)",
       roles: "Winter Student Opportunities - Technical Systems Analyst (2 roles)",
       fit: "90%",
       pay: "$27.00 – $31.00/hr",
       count: 2,
-      tier: "tier3"
+      tier: "tier2"
     },
     {
       name: "Ontario Power Generation (OPG Energy Campus)",
@@ -1163,11 +1163,13 @@ function initMap() {
       weight: 2
     }).addTo(currentMap);
 
+    const locationTag = loc.tier === 'tier1' ? 'York Region' : (loc.tier === 'tier2' ? 'GTA Core' : 'Regional ON');
     const popupHtml = `
       <div class="map-popup-title">${loc.name}</div>
       <div class="map-popup-sub">📍 ${loc.region} &bull; <strong>${loc.km}</strong> from Newmarket</div>
       <div style="font-size:0.83rem; margin-bottom:4px;"><strong>Roles (${loc.count}):</strong> ${loc.roles}</div>
       <div class="map-popup-badges">
+        <span class="popup-badge badge-km">${locationTag}</span>
         <span class="popup-badge badge-km">${loc.km}</span>
         <span class="popup-badge badge-fit">Fit: ${loc.fit}</span>
         <span class="popup-badge badge-pay">${loc.pay}</span>
@@ -1401,10 +1403,10 @@ function initCharts() {
   chartProximity = new Chart(ctxProximity, {
     type: 'bar',
     data: {
-      labels: ['York Region (<30km)', 'Toronto North (30-45km)', 'Midtown / Downtown (46-50km)', 'South Core / Regional (>50km)'],
+      labels: ['York Region (<30km)', 'Toronto North (30-45km)', 'GTA Core / Downtown (≤50km)', 'Regional ON (>50km)'],
       datasets: [{
         label: 'Listings Count',
-        data: [3, 2, 30, 3],
+        data: [3, 2, 32, 1],
         backgroundColor: ['#10b981', '#06b6d4', '#3b82f6', '#f59e0b'],
         borderRadius: 6
       }]
