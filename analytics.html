@@ -187,6 +187,7 @@ h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); display: flex; ali
   width: 4px;
   height: 100%;
 }
+.kpi-card.indigo::before { background: #6366f1; }
 .kpi-card.blue::before { background: #3b82f6; }
 .kpi-card.emerald::before { background: #10b981; }
 .kpi-card.purple::before { background: #8b5cf6; }
@@ -316,6 +317,36 @@ h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); display: flex; ali
   position: relative;
   height: 310px;
   width: 100%;
+}
+
+/* Chart View Toggle Buttons */
+.chart-toggle-group {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--row-alt);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.chart-toggle-btn {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.chart-toggle-btn:hover {
+  color: var(--text);
+}
+.chart-toggle-btn.active {
+  background: var(--card-bg);
+  color: var(--status-active);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 /* Pipeline Conversion Funnel */
@@ -473,7 +504,7 @@ footer {
   <header>
     <div>
       <h1><span>📊</span> Job Search Analytics &amp; Pipeline Insights</h1>
-      <div class="gen-date">Candidate: Golden Stickwood (Newmarket, ON) • Target: Winter 2027 Co-op (Jan–Apr 2027) • Live Metrics &amp; Geo-Telemetry</div>
+      <div class="gen-date">Candidate: Golden Stickwood (Newmarket, ON) • Target: Winter 2027 Co-op (Jan–Apr 2027) • 944 Total Postings Evaluated Across Multi-Portal Swarm • 38 Curated Winter Roles • Live Metrics &amp; Geo-Telemetry</div>
     </div>
     <div class="header-actions">
       <button class="theme-toggle-btn" id="theme-toggle">
@@ -490,12 +521,23 @@ footer {
     </a>
     <a href="analytics.html" class="nav-tab active">
       <span class="nav-icon">📊</span> Analytics &amp; KPIs
-      <span class="nav-badge">Active</span>
+      <span class="nav-badge">944 Scanned</span>
     </a>
   </nav>
 
   <!-- Executive KPI Scorecards -->
   <div class="kpi-grid">
+    <div class="kpi-card indigo">
+      <div class="kpi-header">
+        <span class="kpi-title">Total Postings Scanned</span>
+        <span class="kpi-icon">⚡</span>
+      </div>
+      <div class="kpi-value">944</div>
+      <div class="kpi-subtext">
+        <span class="kpi-trend trend-up">4.0% Yield</span> 38 Winter Roles Curated
+      </div>
+    </div>
+
     <div class="kpi-card blue">
       <div class="kpi-header">
         <span class="kpi-title">Verified Winter Co-ops</span>
@@ -556,9 +598,9 @@ footer {
         <span class="kpi-title">Active Sourced Portals</span>
         <span class="kpi-icon">🌐</span>
       </div>
-      <div class="kpi-value">4</div>
+      <div class="kpi-value">6 Portals</div>
       <div class="kpi-subtext">
-        Indeed (31), LinkedIn (5), Eluta (1), Direct (1)
+        Indeed (576), LinkedIn (331), Others (37)
       </div>
     </div>
   </div>
@@ -620,45 +662,54 @@ footer {
         <div class="funnel-step">
           <div class="funnel-step-num">1</div>
           <div class="funnel-step-info">
-            <div class="funnel-step-title"><span>Discovered &amp; Scraped Postings</span> <span>38 / 38 (100%)</span></div>
-            <div class="funnel-step-desc">Ingested across Indeed Canada, LinkedIn, Eluta, and direct career portals.</div>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 100%; background: #6366f1;"></div></div>
+            <div class="funnel-step-title"><span>Total Postings Ingested &amp; Scanned</span> <span>944 (100%)</span></div>
+            <div class="funnel-step-desc">Ingested across Indeed Canada Swarm (576), LinkedIn Jobs (331), Talent.com (18), Eluta.ca (15), Job Bank (4).</div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 100%; background: #8b5cf6;"></div></div>
           </div>
         </div>
 
         <div class="funnel-step">
           <div class="funnel-step-num">2</div>
           <div class="funnel-step-info">
-            <div class="funnel-step-title"><span>High Curriculum Fit Match (&ge;85%)</span> <span>35 / 38 (92.1%)</span></div>
-            <div class="funnel-step-desc">Validated against Seneca CPET coursework (Cisco routing, Linux, Active Directory, virtualization).</div>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 92.1%; background: #3b82f6;"></div></div>
+            <div class="funnel-step-title"><span>Curated Winter 2027 Co-op Postings</span> <span>38 / 944 (4.0% Yield)</span></div>
+            <div class="funnel-step-desc">Filtered strictly for confirmed Winter 2027 co-op terms matching Seneca CPET target disciplines.</div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 65%; background: #6366f1;"></div></div>
           </div>
         </div>
 
         <div class="funnel-step">
           <div class="funnel-step-num">3</div>
           <div class="funnel-step-info">
-            <div class="funnel-step-title"><span>Tailored LaTeX CV &amp; Cover Letters Compiled</span> <span>9 / 38 (23.7%)</span></div>
-            <div class="funnel-step-desc">Synthesized with verified primary lab proof and company-tailored value propositions.</div>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 23.7%; background: #10b981;"></div></div>
+            <div class="funnel-step-title"><span>High Curriculum Fit Match (&ge;85%)</span> <span>35 / 38 (92.1%)</span></div>
+            <div class="funnel-step-desc">Validated against Seneca CPET coursework (Cisco routing, Linux, Active Directory, virtualization).</div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 58%; background: #3b82f6;"></div></div>
           </div>
         </div>
 
         <div class="funnel-step">
           <div class="funnel-step-num">4</div>
           <div class="funnel-step-info">
-            <div class="funnel-step-title"><span>Submitted / Active Queue</span> <span>0 / 38 (Pending Submission)</span></div>
-            <div class="funnel-step-desc">Awaiting user confirmation of direct employer portal submissions.</div>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 4%; background: #f59e0b;"></div></div>
+            <div class="funnel-step-title"><span>Tailored LaTeX CV &amp; Cover Letters Compiled</span> <span>9 / 38 (23.7%)</span></div>
+            <div class="funnel-step-desc">Synthesized with verified primary lab proof and company-tailored value propositions.</div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 32%; background: #10b981;"></div></div>
           </div>
         </div>
 
         <div class="funnel-step">
           <div class="funnel-step-num">5</div>
           <div class="funnel-step-info">
+            <div class="funnel-step-title"><span>Submitted / Active Queue</span> <span>0 / 38 (Pending Submission)</span></div>
+            <div class="funnel-step-desc">Awaiting user confirmation of direct employer portal submissions.</div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 6%; background: #f59e0b;"></div></div>
+          </div>
+        </div>
+
+        <div class="funnel-step">
+          <div class="funnel-step-num">6</div>
+          <div class="funnel-step-info">
             <div class="funnel-step-title"><span>Technical Interviews &amp; Screenings</span> <span>0 Active</span></div>
             <div class="funnel-step-desc">Automated STAR prep packs staged upon interview invitation.</div>
-            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 2%; background: #8b5cf6;"></div></div>
+            <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width: 3%; background: #ec4899;"></div></div>
           </div>
         </div>
       </div>
@@ -675,7 +726,7 @@ footer {
         <div class="flow-node">
           <div class="flow-node-icon">🕷️</div>
           <div class="flow-node-title">1. Multi-Portal Swarm</div>
-          <div class="flow-node-subtitle">Indeed, LinkedIn, Job Bank, Eluta CLI crawlers</div>
+          <div class="flow-node-subtitle">944 scanned across 6 job boards</div>
         </div>
         <div class="flow-arrow">➔</div>
         <div class="flow-node">
@@ -704,7 +755,7 @@ footer {
       </div>
 
       <div style="margin-top: 20px; padding: 14px; background: var(--row-alt); border-radius: 8px; border: 1px solid var(--border); font-size: 0.84rem; color: var(--text-muted);">
-        <strong style="color: var(--text);">💡 Operational Architecture Note:</strong> All pipeline steps execute autonomously with atomic state deduplication in <code>seen_jobs.json</code> and deterministic commute resolution against Golden's Newmarket base.
+        <strong style="color: var(--text);">💡 Operational Architecture Note:</strong> <strong>944 deduplicated postings</strong> ingested across 6 portal crawlers &rarr; filtered with atomic state deduplication in <code>seen_jobs.json</code> &rarr; <strong>38 high-relevance Winter 2027 co-ops</strong> isolated with deterministic commute resolution against Golden's Newmarket base.
       </div>
     </section>
   </div>
@@ -748,10 +799,14 @@ footer {
     </section>
 
     <section class="dashboard-section" style="margin-bottom:0;">
-      <div class="section-header">
+      <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
         <div>
           <h2 class="section-title"><span>🌐</span> Sourced Portal Ingestion Share</h2>
           <div class="section-desc">Breakdown of listings originated per aggregator and direct career board.</div>
+        </div>
+        <div class="chart-toggle-group">
+          <button id="btn-sources-seen" class="chart-toggle-btn active" onclick="switchSourcesView('seen')">Total Scanned (944)</button>
+          <button id="btn-sources-curated" class="chart-toggle-btn" onclick="switchSourcesView('curated')">Curated Winter (38)</button>
         </div>
       </div>
       <div class="chart-wrapper">
@@ -1185,13 +1240,14 @@ function initCharts() {
 
   // 6. Sourced Portal Ingestion Share (Pie Chart)
   const ctxSources = document.getElementById('chart-sources').getContext('2d');
+  const initialSources = sourcesData.seen;
   chartSources = new Chart(ctxSources, {
     type: 'pie',
     data: {
-      labels: ['Indeed Canada (31)', 'LinkedIn Jobs (5)', 'Eluta.ca (1)', 'Direct Employer (1)'],
+      labels: initialSources.labels,
       datasets: [{
-        data: [31, 5, 1, 1],
-        backgroundColor: ['#6366f1', '#0ea5e9', '#f59e0b', '#64748b'],
+        data: initialSources.data,
+        backgroundColor: initialSources.colors,
         borderWidth: 0,
         hoverOffset: 6
       }]
@@ -1204,6 +1260,33 @@ function initCharts() {
       }
     }
   });
+}
+
+const sourcesData = {
+  seen: {
+    labels: ['Indeed Canada Swarm (576)', 'LinkedIn Jobs (331)', 'Talent.com (18)', 'Eluta.ca (15)', 'Job Bank Canada (4)'],
+    data: [576, 331, 18, 15, 4],
+    colors: ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899']
+  },
+  curated: {
+    labels: ['Indeed Canada (31)', 'LinkedIn Jobs (5)', 'Eluta.ca (1)', 'Direct Employer (1)'],
+    data: [31, 5, 1, 1],
+    colors: ['#6366f1', '#0ea5e9', '#f59e0b', '#64748b']
+  }
+};
+
+let currentSourcesMode = 'seen';
+
+function switchSourcesView(mode) {
+  currentSourcesMode = mode;
+  document.getElementById('btn-sources-seen')?.classList.toggle('active', mode === 'seen');
+  document.getElementById('btn-sources-curated')?.classList.toggle('active', mode === 'curated');
+  if (!chartSources) return;
+  const cfg = sourcesData[mode];
+  chartSources.data.labels = cfg.labels;
+  chartSources.data.datasets[0].data = cfg.data;
+  chartSources.data.datasets[0].backgroundColor = cfg.colors;
+  chartSources.update();
 }
 
 function updateChartsTheme(theme) {

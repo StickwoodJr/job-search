@@ -191,6 +191,7 @@ h1 { font-size: 1.7rem; font-weight: 700; color: var(--text); }
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   border-left: 4px solid var(--status-draft);
 }
+.stat-card.seen { border-left-color: #8b5cf6; }
 .stat-card.total { border-left-color: var(--text); }
 .stat-card.scraped { border-left-color: var(--status-scraped); }
 .stat-card.drafted { border-left-color: var(--status-draft); }
@@ -815,7 +816,7 @@ footer {
 <header>
 <div>
 <h1>Job Search Application Dashboard</h1>
-<div class="gen-date">Candidate: Golden Stickwood (Newmarket, ON) • Target: Winter 2027 Co-op (Jan–Apr 2027) • Exclusively Verified Winter Co-ops • Last updated: September 10, 2026</div>
+<div class="gen-date">Candidate: Golden Stickwood (Newmarket, ON) • Target: Winter 2027 Co-op (Jan–Apr 2027) • 944 Total Postings Scanned &amp; Deduplicated Across Swarm • 38 Curated Winter Co-ops • Last updated: September 10, 2026</div>
 </div>
 <div class="header-actions">
 <button class="theme-toggle-btn" id="theme-toggle">
@@ -830,13 +831,17 @@ footer {
   </a>
   <a href="analytics.html" class="nav-tab">
     <span class="nav-icon">📊</span> Analytics &amp; KPIs
-    <span class="nav-badge new">New</span>
+    <span class="nav-badge new">944 Scanned</span>
   </a>
 </nav>
 <div class="stat-grid">
+<div class="stat-card seen">
+<div class="stat-num" id="stat-num-seen" style="color: #8b5cf6;">944</div>
+<div class="stat-label">Total Jobs Scanned</div>
+</div>
 <div class="stat-card total">
 <div class="stat-num" id="stat-num-total">38</div>
-<div class="stat-label">Total Verified Winter Co-ops</div>
+<div class="stat-label">Verified Winter Co-ops</div>
 </div>
 <div class="stat-card scraped">
 <div class="stat-num" id="stat-num-scraped">29</div>
