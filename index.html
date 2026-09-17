@@ -219,8 +219,14 @@ th .sort-icon {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
+th.active-sort {
+  background: var(--border);
+  color: var(--status-active);
+  border-bottom: 2px solid var(--status-active);
+}
 th.active-sort .sort-icon {
   color: var(--status-active);
+  font-weight: 800;
 }
 
 td {
@@ -682,14 +688,17 @@ footer {
   border-color: var(--status-active);
 }
 
-/* Quick Filter Chips */
-.board-quick-chips {
+/* Quick Filter & Sort Chips */
+.board-quick-chips, .sort-quick-chips {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
-  padding: 4px 0;
+  padding: 2px 0;
+}
+.sort-quick-chips {
+  margin-bottom: 16px;
 }
 .chips-label {
   font-size: 0.82rem;
@@ -699,7 +708,7 @@ footer {
   letter-spacing: 0.04em;
   margin-right: 2px;
 }
-.quick-chip {
+.quick-chip, .sort-chip {
   background: var(--card-bg);
   color: var(--text);
   border: 1px solid var(--border);
@@ -712,15 +721,21 @@ footer {
   align-items: center;
   gap: 6px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  transition: all 0.15s ease;
 }
-.quick-chip:hover {
+.quick-chip:hover, .sort-chip:hover {
   border-color: var(--status-active);
   color: var(--status-active);
 }
-.quick-chip.active {
+.quick-chip.active, .sort-chip.active {
   background: var(--badge-active-bg);
   color: var(--badge-active-text);
   border-color: var(--status-active);
+}
+[data-theme="dark"] .quick-chip.active, [data-theme="dark"] .sort-chip.active {
+  background: #1e3a8a;
+  color: #93c5fd;
+  border-color: #3b82f6;
 }
 
 /* Board Badges in Table */
@@ -900,14 +915,29 @@ footer {
 </div>
 <select class="sort-select" id="sort-select">
 <option value="distance-asc">Sort by: Proximity to Newmarket (Closest First 📍)</option>
-<option value="overall-desc">Sort by: Overall Score (High to Low)</option>
-<option value="chance-desc">Sort by: Chance of Offer (High to Low)</option>
-<option value="prestige-desc">Sort by: Prestige (Tier 1 to Tier 4)</option>
-<option value="fit-desc">Sort by: Fit Match (High to Low)</option>
-<option value="pay-desc">Sort by: Est. Hourly Pay (High to Low)</option>
 <option value="distance-desc">Sort by: Distance from Newmarket (Furthest First)</option>
+<option value="overall-desc">Sort by: Overall Score (High to Low)</option>
+<option value="overall-asc">Sort by: Overall Score (Low to High)</option>
+<option value="fit-desc">Sort by: Fit Match (High to Low)</option>
+<option value="fit-asc">Sort by: Fit Match (Low to High)</option>
+<option value="chance-desc">Sort by: Chance of Offer (High to Low)</option>
+<option value="chance-asc">Sort by: Chance of Offer (Low to High)</option>
+<option value="prestige-desc">Sort by: Prestige (Tier 1 to Tier 4)</option>
+<option value="prestige-asc">Sort by: Prestige (Tier 4 to Tier 1)</option>
+<option value="pay-desc">Sort by: Est. Hourly Pay (High to Low)</option>
+<option value="pay-asc">Sort by: Est. Hourly Pay (Low to High)</option>
+<option value="deadline-asc">Sort by: Deadline (Urgent / Earliest First 🔥)</option>
+<option value="deadline-desc">Sort by: Deadline (Furthest / Latest First)</option>
 <option value="date-desc">Sort by: Date Found (Newest First)</option>
-<option value="company-asc">Sort by: Company Name (A-Z)</option>
+<option value="date-asc">Sort by: Date Found (Oldest First)</option>
+<option value="company-asc">Sort by: Company Name (A–Z)</option>
+<option value="company-desc">Sort by: Company Name (Z–A)</option>
+<option value="role-asc">Sort by: Role Title (A–Z)</option>
+<option value="role-desc">Sort by: Role Title (Z–A)</option>
+<option value="location-asc">Sort by: Location (A–Z)</option>
+<option value="location-desc">Sort by: Location (Z–A)</option>
+<option value="status-asc">Sort by: Status (A–Z)</option>
+<option value="status-desc">Sort by: Status (Z–A)</option>
 </select>
 </div>
 <div class="board-quick-chips">
@@ -920,6 +950,16 @@ footer {
 <button class="quick-chip" data-preset="linkedin" type="button"><span class="board-badge badge-linkedin" style="margin-right:2px;">LinkedIn</span> LinkedIn</button>
 <button class="quick-chip" data-preset="talent" type="button"><span class="board-badge badge-talent" style="margin-right:2px;">Talent</span> Talent.com</button>
 <button class="quick-chip" data-preset="eluta" type="button"><span class="board-badge badge-eluta" style="margin-right:2px;">Eluta</span> Eluta</button>
+</div>
+<div class="sort-quick-chips">
+<span class="chips-label">Quick Sort:</span>
+<button class="sort-chip active" data-sort="distance-asc" type="button">📍 Nearest First</button>
+<button class="sort-chip" data-sort="overall-desc" type="button">🏆 Overall Score</button>
+<button class="sort-chip" data-sort="fit-desc" type="button">🎯 Best Fit</button>
+<button class="sort-chip" data-sort="pay-desc" type="button">💰 Highest Pay</button>
+<button class="sort-chip" data-sort="deadline-asc" type="button">🔥 Urgent Deadlines</button>
+<button class="sort-chip" data-sort="date-desc" type="button">🕒 Recently Added</button>
+<button class="sort-chip" data-sort="company-asc" type="button">🏢 Company (A–Z)</button>
 </div>
 <div class="table-stats-bar">
 <span id="showing-count">Showing 50 of 50 Winter Co-op listings</span>
@@ -998,6 +1038,7 @@ const boardAllBtn = document.getElementById('board-all-btn');
 const boardNoneBtn = document.getElementById('board-none-btn');
 const boardOnlyBtns = document.querySelectorAll('.board-only-btn');
 const quickChips = document.querySelectorAll('.quick-chip');
+const sortChips = document.querySelectorAll('.sort-chip');
 
 let currentSortCol = 'distance';
 let currentSortDir = 'asc';
@@ -1218,53 +1259,95 @@ function filterAndSort() {
 
   showingCount.textContent = `Showing ${visibleCount} of ${allRows.length} listings`;
 
-  // Sort visible rows
+  // Sort visible rows with smart secondary tie-breakers
   allRows.sort((a, b) => {
-    let valA, valB;
+    let diff = 0;
     if (currentSortCol === 'distance') {
-      valA = parseFloat(a.getAttribute('data-distance') || 0);
-      valB = parseFloat(b.getAttribute('data-distance') || 0);
+      const vA = parseFloat(a.getAttribute('data-distance') || 0);
+      const vB = parseFloat(b.getAttribute('data-distance') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'fit') {
-      valA = parseInt(a.getAttribute('data-fit') || 0);
-      valB = parseInt(b.getAttribute('data-fit') || 0);
+      const vA = parseInt(a.getAttribute('data-fit') || 0);
+      const vB = parseInt(b.getAttribute('data-fit') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'overall') {
-      valA = parseInt(a.getAttribute('data-overall') || 0);
-      valB = parseInt(b.getAttribute('data-overall') || 0);
+      const vA = parseInt(a.getAttribute('data-overall') || 0);
+      const vB = parseInt(b.getAttribute('data-overall') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'chance') {
-      valA = parseInt(a.getAttribute('data-chance') || 0);
-      valB = parseInt(b.getAttribute('data-chance') || 0);
+      const vA = parseInt(a.getAttribute('data-chance') || 0);
+      const vB = parseInt(b.getAttribute('data-chance') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'prestige') {
-      valA = parseInt(a.getAttribute('data-prestige') || 0);
-      valB = parseInt(b.getAttribute('data-prestige') || 0);
+      const vA = parseInt(a.getAttribute('data-prestige') || 0);
+      const vB = parseInt(b.getAttribute('data-prestige') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'pay') {
-      valA = parseFloat(a.getAttribute('data-pay') || 0);
-      valB = parseFloat(b.getAttribute('data-pay') || 0);
-    } else if (currentSortCol === 'date') {
-      valA = a.getAttribute('data-date') || '';
-      valB = b.getAttribute('data-date') || '';
-    } else if (currentSortCol === 'company') {
-      valA = (a.getAttribute('data-company') || '').toLowerCase();
-      valB = (b.getAttribute('data-company') || '').toLowerCase();
-    } else if (currentSortCol === 'role') {
-      valA = (a.getAttribute('data-role') || '').toLowerCase();
-      valB = (b.getAttribute('data-role') || '').toLowerCase();
-    } else if (currentSortCol === 'location') {
-      valA = (a.getAttribute('data-location') || '').toLowerCase();
-      valB = (b.getAttribute('data-location') || '').toLowerCase();
-    } else if (currentSortCol === 'status') {
-      valA = (a.getAttribute('data-status') || '').toLowerCase();
-      valB = (b.getAttribute('data-status') || '').toLowerCase();
+      const vA = parseFloat(a.getAttribute('data-pay') || 0);
+      const vB = parseFloat(b.getAttribute('data-pay') || 0);
+      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
     } else if (currentSortCol === 'deadline') {
-      valA = (a.getAttribute('data-deadline') || '').toLowerCase();
-      valB = (b.getAttribute('data-deadline') || '').toLowerCase();
+      const dA = (a.getAttribute('data-deadline') || '').trim();
+      const dB = (b.getAttribute('data-deadline') || '').trim();
+      const isDatedA = /^\d{4}-\d{2}-\d{2}$/.test(dA);
+      const isDatedB = /^\d{4}-\d{2}-\d{2}$/.test(dB);
+      if (isDatedA && isDatedB) {
+        diff = currentSortDir === 'asc' ? dA.localeCompare(dB) : dB.localeCompare(dA);
+      } else if (isDatedA && !isDatedB) {
+        diff = -1; // Dated deadlines always come first before Rolling
+      } else if (!isDatedA && isDatedB) {
+        diff = 1;  // Rolling comes after dated deadlines
+      } else {
+        diff = 0;
+      }
+    } else if (currentSortCol === 'date') {
+      const vA = a.getAttribute('data-date') || '';
+      const vB = b.getAttribute('data-date') || '';
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    } else if (currentSortCol === 'company') {
+      const vA = (a.getAttribute('data-company') || '').toLowerCase();
+      const vB = (b.getAttribute('data-company') || '').toLowerCase();
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    } else if (currentSortCol === 'role') {
+      const vA = (a.getAttribute('data-role') || '').toLowerCase();
+      const vB = (b.getAttribute('data-role') || '').toLowerCase();
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    } else if (currentSortCol === 'location') {
+      const vA = (a.getAttribute('data-location') || '').toLowerCase();
+      const vB = (b.getAttribute('data-location') || '').toLowerCase();
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    } else if (currentSortCol === 'status') {
+      const vA = (a.getAttribute('data-status') || '').toLowerCase();
+      const vB = (b.getAttribute('data-status') || '').toLowerCase();
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
     } else {
-      valA = a.getAttribute(`data-${currentSortCol}`) || '';
-      valB = b.getAttribute(`data-${currentSortCol}`) || '';
+      const vA = (a.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
+      const vB = (b.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
+      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
     }
 
-    if (valA < valB) return currentSortDir === 'asc' ? -1 : 1;
-    if (valA > valB) return currentSortDir === 'asc' ? 1 : -1;
-    return 0;
+    if (diff !== 0) return diff;
+
+    // Robust tie-breakers when primary sort matches (e.g. same distance):
+    // 1. Distance (nearest first)
+    const distA = parseFloat(a.getAttribute('data-distance') || 999);
+    const distB = parseFloat(b.getAttribute('data-distance') || 999);
+    if (distA !== distB) return distA - distB;
+
+    // 2. Overall score (highest first)
+    const ovA = parseInt(a.getAttribute('data-overall') || 0);
+    const ovB = parseInt(b.getAttribute('data-overall') || 0);
+    if (ovA !== ovB) return ovB - ovA;
+
+    // 3. Fit score (highest first)
+    const fitA = parseInt(a.getAttribute('data-fit') || 0);
+    const fitB = parseInt(b.getAttribute('data-fit') || 0);
+    if (fitA !== fitB) return fitB - fitA;
+
+    // 4. Company name (A-Z)
+    const compA = (a.getAttribute('data-company') || '').toLowerCase();
+    const compB = (b.getAttribute('data-company') || '').toLowerCase();
+    return compA.localeCompare(compB);
   });
 
   allRows.forEach(row => tbody.appendChild(row));
@@ -1281,6 +1364,15 @@ function filterAndSort() {
       if (icon) icon.textContent = '↕';
     }
   });
+
+  updateSortChipActive();
+}
+
+function updateSortChipActive() {
+  const currentKey = `${currentSortCol}-${currentSortDir}`;
+  sortChips.forEach(chip => {
+    chip.classList.toggle('active', chip.getAttribute('data-sort') === currentKey);
+  });
 }
 
 // Attach event listeners to controls
@@ -1288,12 +1380,29 @@ searchBox?.addEventListener('input', filterAndSort);
 statusFilter?.addEventListener('change', filterAndSort);
 regionFilter?.addEventListener('change', filterAndSort);
 
+// Quick Sort Chips event listeners
+sortChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    const sortVal = chip.getAttribute('data-sort');
+    if (!sortVal) return;
+    const parts = sortVal.split('-');
+    currentSortCol = parts[0];
+    currentSortDir = parts[1];
+    if (sortSelect) {
+      sortSelect.value = sortVal;
+    }
+    updateSortChipActive();
+    filterAndSort();
+  });
+});
+
 if (sortSelect) {
   sortSelect.addEventListener('change', () => {
     const parts = sortSelect.value.split('-');
     if (parts.length >= 2) {
       currentSortCol = parts[0];
       currentSortDir = parts[1];
+      updateSortChipActive();
       filterAndSort();
     }
   });
@@ -1320,6 +1429,7 @@ ths.forEach(th => {
         sortSelect.value = optVal;
       }
     }
+    updateSortChipActive();
     filterAndSort();
   });
 });
@@ -1327,6 +1437,7 @@ ths.forEach(th => {
 
 updateBoardButtonText();
 updateQuickChipActive();
+updateSortChipActive();
 filterAndSort();
 
 // Silent Background Auto-Refresh (Every 30 seconds)
