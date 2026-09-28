@@ -1069,14 +1069,41 @@ if (savedStatus && statusFilter) statusFilter.value = savedStatus;
 const savedRegion = localStorage.getItem('dashboard_region');
 if (savedRegion && regionFilter) regionFilter.value = savedRegion;
 
+const VALID_SORT_COLS = new Set([
+  'distance', 'overall', 'fit', 'chance', 'prestige', 'pay', 
+  'deadline', 'date', 'company', 'role', 'location', 'status'
+]);
+
+function parseSortValue(val) {
+  if (!val || typeof val !== 'string') return { col: 'distance', dir: 'asc' };
+  const lastDash = val.lastIndexOf('-');
+  if (lastDash === -1) return { col: VALID_SORT_COLS.has(val) ? val : 'distance', dir: 'asc' };
+  const col = val.substring(0, lastDash);
+  const dir = val.substring(lastDash + 1).toLowerCase() === 'desc' ? 'desc' : 'asc';
+  return {
+    col: VALID_SORT_COLS.has(col) ? col : 'distance',
+    dir: dir
+  };
+}
+
+function safeNum(val, fallback = 0) {
+  if (val === null || val === undefined || val === '') return fallback;
+  const n = parseFloat(val);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function safeInt(val, fallback = 0) {
+  if (val === null || val === undefined || val === '') return fallback;
+  const n = parseInt(val, 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 const savedSort = localStorage.getItem('dashboard_sort');
 if (savedSort) {
-  const parts = savedSort.split('-');
-  if (parts.length >= 2) {
-    currentSortCol = parts[0];
-    currentSortDir = parts[1];
-    if (sortSelect) sortSelect.value = savedSort;
-  }
+  const parsed = parseSortValue(savedSort);
+  currentSortCol = parsed.col;
+  currentSortDir = parsed.dir;
+  if (sortSelect) sortSelect.value = `${currentSortCol}-${currentSortDir}`;
 }
 
 function updateBoardButtonText() {
@@ -1226,148 +1253,156 @@ function getRowBoard(row) {
 }
 
 function filterAndSort() {
-  const query = searchBox.value.toLowerCase().trim();
-  const status = statusFilter.value;
-  const region = regionFilter.value.toLowerCase();
-  
-  localStorage.setItem('dashboard_search', searchBox.value);
-  localStorage.setItem('dashboard_status', status);
-  localStorage.setItem('dashboard_region', regionFilter.value);
-  localStorage.setItem('dashboard_sort', `${currentSortCol}-${currentSortDir}`);
-
-  const allRows = getRows();
-  let visibleCount = 0;
-
-  allRows.forEach(row => {
-    const rowText = row.innerText.toLowerCase();
-    const rowStatus = row.getAttribute('data-status');
-    const rowRegion = (row.getAttribute('data-region') || '').toLowerCase();
-    const rowBoard = getRowBoard(row);
+  try {
+    const query = (searchBox?.value || '').toLowerCase().trim();
+    const status = statusFilter?.value || 'ALL';
+    const region = (regionFilter?.value || 'ALL').toLowerCase();
     
-    const matchesStatus = status === 'ALL' || 
-                          rowStatus === status || 
-                          (status === 'Active' && (rowStatus === 'Active' || rowStatus === 'Applied' || rowStatus === 'Submitted')) ||
-                          (status === 'Drafted' && (rowStatus === 'Drafted' || rowStatus === 'Ready to Submit')) ||
-                          (status === 'Rejected/Closed' && (rowStatus === 'Rejected/Closed' || rowStatus === 'Closed' || rowStatus === 'Rejected' || rowStatus === 'Outside Scope' || rowStatus === 'Outside_Scope'));
-    const matchesBoard = selectedBoards.has(rowBoard);
+    if (searchBox) localStorage.setItem('dashboard_search', searchBox.value);
+    if (statusFilter) localStorage.setItem('dashboard_status', status);
+    if (regionFilter) localStorage.setItem('dashboard_region', regionFilter.value);
+    localStorage.setItem('dashboard_sort', `${currentSortCol}-${currentSortDir}`);
 
-    if (matchesQuery && matchesStatus && matchesRegion && matchesBoard) {
-      row.style.display = '';
-      visibleCount++;
-    } else {
-      row.style.display = 'none';
-    }
-  });
+    const allRows = getRows();
+    let visibleCount = 0;
 
-  showingCount.textContent = `Showing ${visibleCount} of ${allRows.length} listings`;
+    allRows.forEach(row => {
+      const rowText = row.innerText.toLowerCase();
+      const rowStatus = row.getAttribute('data-status') || '';
+      const rowRegion = (row.getAttribute('data-region') || '').toLowerCase();
+      const rowBoard = getRowBoard(row);
+      
+      const matchesQuery = !query || rowText.includes(query);
+      const matchesStatus = status === 'ALL' || 
+                            rowStatus === status || 
+                            (status === 'Active' && (rowStatus === 'Active' || rowStatus === 'Applied' || rowStatus === 'Submitted')) ||
+                            (status === 'Drafted' && (rowStatus === 'Drafted' || rowStatus === 'Ready to Submit')) ||
+                            (status === 'Rejected/Closed' && (rowStatus === 'Rejected/Closed' || rowStatus === 'Closed' || rowStatus === 'Rejected' || rowStatus === 'Outside Scope' || rowStatus === 'Outside_Scope'));
+      const matchesRegion = region === 'all' || rowRegion.includes(region);
+      const matchesBoard = selectedBoards.has(rowBoard);
 
-  // Sort visible rows with smart secondary tie-breakers
-  allRows.sort((a, b) => {
-    let diff = 0;
-    if (currentSortCol === 'distance') {
-      const vA = parseFloat(a.getAttribute('data-distance') || 0);
-      const vB = parseFloat(b.getAttribute('data-distance') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'fit') {
-      const vA = parseInt(a.getAttribute('data-fit') || 0);
-      const vB = parseInt(b.getAttribute('data-fit') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'overall') {
-      const vA = parseInt(a.getAttribute('data-overall') || 0);
-      const vB = parseInt(b.getAttribute('data-overall') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'chance') {
-      const vA = parseInt(a.getAttribute('data-chance') || 0);
-      const vB = parseInt(b.getAttribute('data-chance') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'prestige') {
-      const vA = parseInt(a.getAttribute('data-prestige') || 0);
-      const vB = parseInt(b.getAttribute('data-prestige') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'pay') {
-      const vA = parseFloat(a.getAttribute('data-pay') || 0);
-      const vB = parseFloat(b.getAttribute('data-pay') || 0);
-      diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
-    } else if (currentSortCol === 'deadline') {
-      const dA = (a.getAttribute('data-deadline') || '').trim();
-      const dB = (b.getAttribute('data-deadline') || '').trim();
-      const isDatedA = /^\d{4}-\d{2}-\d{2}$/.test(dA);
-      const isDatedB = /^\d{4}-\d{2}-\d{2}$/.test(dB);
-      if (isDatedA && isDatedB) {
-        diff = currentSortDir === 'asc' ? dA.localeCompare(dB) : dB.localeCompare(dA);
-      } else if (isDatedA && !isDatedB) {
-        diff = -1; // Dated deadlines always come first before Rolling
-      } else if (!isDatedA && isDatedB) {
-        diff = 1;  // Rolling comes after dated deadlines
+      if (matchesQuery && matchesStatus && matchesRegion && matchesBoard) {
+        row.style.display = '';
+        visibleCount++;
       } else {
-        diff = 0;
+        row.style.display = 'none';
       }
-    } else if (currentSortCol === 'date') {
-      const vA = a.getAttribute('data-date') || '';
-      const vB = b.getAttribute('data-date') || '';
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
-    } else if (currentSortCol === 'company') {
-      const vA = (a.getAttribute('data-company') || '').toLowerCase();
-      const vB = (b.getAttribute('data-company') || '').toLowerCase();
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
-    } else if (currentSortCol === 'role') {
-      const vA = (a.getAttribute('data-role') || '').toLowerCase();
-      const vB = (b.getAttribute('data-role') || '').toLowerCase();
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
-    } else if (currentSortCol === 'location') {
-      const vA = (a.getAttribute('data-location') || '').toLowerCase();
-      const vB = (b.getAttribute('data-location') || '').toLowerCase();
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
-    } else if (currentSortCol === 'status') {
-      const vA = (a.getAttribute('data-status') || '').toLowerCase();
-      const vB = (b.getAttribute('data-status') || '').toLowerCase();
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
-    } else {
-      const vA = (a.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
-      const vB = (b.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
-      diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+    });
+
+    if (showingCount) {
+      showingCount.textContent = `Showing ${visibleCount} of ${allRows.length} listings`;
     }
 
-    if (diff !== 0) return diff;
+    // Sort visible rows with smart secondary tie-breakers
+    allRows.sort((a, b) => {
+      let diff = 0;
+      if (currentSortCol === 'distance') {
+        const vA = safeNum(a.getAttribute('data-distance'), 9999);
+        const vB = safeNum(b.getAttribute('data-distance'), 9999);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'fit') {
+        const vA = safeInt(a.getAttribute('data-fit'), 0);
+        const vB = safeInt(b.getAttribute('data-fit'), 0);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'overall') {
+        const vA = safeInt(a.getAttribute('data-overall'), 0);
+        const vB = safeInt(b.getAttribute('data-overall'), 0);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'chance') {
+        const vA = safeInt(a.getAttribute('data-chance'), 0);
+        const vB = safeInt(b.getAttribute('data-chance'), 0);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'prestige') {
+        const vA = safeInt(a.getAttribute('data-prestige'), 0);
+        const vB = safeInt(b.getAttribute('data-prestige'), 0);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'pay') {
+        const vA = safeNum(a.getAttribute('data-pay'), 0);
+        const vB = safeNum(b.getAttribute('data-pay'), 0);
+        diff = currentSortDir === 'asc' ? vA - vB : vB - vA;
+      } else if (currentSortCol === 'deadline') {
+        const dA = (a.getAttribute('data-deadline') || '').trim();
+        const dB = (b.getAttribute('data-deadline') || '').trim();
+        const isDatedA = /^\d{4}-\d{2}-\d{2}$/.test(dA);
+        const isDatedB = /^\d{4}-\d{2}-\d{2}$/.test(dB);
+        if (isDatedA && isDatedB) {
+          diff = currentSortDir === 'asc' ? dA.localeCompare(dB) : dB.localeCompare(dA);
+        } else if (isDatedA && !isDatedB) {
+          diff = -1; // Dated deadlines always come first before Rolling
+        } else if (!isDatedA && isDatedB) {
+          diff = 1;  // Rolling comes after dated deadlines
+        } else {
+          diff = 0;
+        }
+      } else if (currentSortCol === 'date') {
+        const vA = a.getAttribute('data-date') || '';
+        const vB = b.getAttribute('data-date') || '';
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      } else if (currentSortCol === 'company') {
+        const vA = (a.getAttribute('data-company') || '').toLowerCase();
+        const vB = (b.getAttribute('data-company') || '').toLowerCase();
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      } else if (currentSortCol === 'role') {
+        const vA = (a.getAttribute('data-role') || '').toLowerCase();
+        const vB = (b.getAttribute('data-role') || '').toLowerCase();
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      } else if (currentSortCol === 'location') {
+        const vA = (a.getAttribute('data-location') || '').toLowerCase();
+        const vB = (b.getAttribute('data-location') || '').toLowerCase();
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      } else if (currentSortCol === 'status') {
+        const vA = (a.getAttribute('data-status') || '').toLowerCase();
+        const vB = (b.getAttribute('data-status') || '').toLowerCase();
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      } else {
+        const vA = (a.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
+        const vB = (b.getAttribute(`data-${currentSortCol}`) || '').toLowerCase();
+        diff = currentSortDir === 'asc' ? vA.localeCompare(vB) : vB.localeCompare(vA);
+      }
 
-    // Robust tie-breakers when primary sort matches (e.g. same distance):
-    // 1. Distance (nearest first)
-    const distA = parseFloat(a.getAttribute('data-distance') || 999);
-    const distB = parseFloat(b.getAttribute('data-distance') || 999);
-    if (distA !== distB) return distA - distB;
+      if (diff !== 0 && !Number.isNaN(diff)) return diff;
 
-    // 2. Overall score (highest first)
-    const ovA = parseInt(a.getAttribute('data-overall') || 0);
-    const ovB = parseInt(b.getAttribute('data-overall') || 0);
-    if (ovA !== ovB) return ovB - ovA;
+      // Robust tie-breakers when primary sort matches (e.g. same distance):
+      // 1. Distance (nearest first)
+      const distA = safeNum(a.getAttribute('data-distance'), 9999);
+      const distB = safeNum(b.getAttribute('data-distance'), 9999);
+      if (distA !== distB) return distA - distB;
 
-    // 3. Fit score (highest first)
-    const fitA = parseInt(a.getAttribute('data-fit') || 0);
-    const fitB = parseInt(b.getAttribute('data-fit') || 0);
-    if (fitA !== fitB) return fitB - fitA;
+      // 2. Overall score (highest first)
+      const ovA = safeInt(a.getAttribute('data-overall'), 0);
+      const ovB = safeInt(b.getAttribute('data-overall'), 0);
+      if (ovA !== ovB) return ovB - ovA;
 
-    // 4. Company name (A-Z)
-    const compA = (a.getAttribute('data-company') || '').toLowerCase();
-    const compB = (b.getAttribute('data-company') || '').toLowerCase();
-    return compA.localeCompare(compB);
-  });
+      // 3. Fit score (highest first)
+      const fitA = safeInt(a.getAttribute('data-fit'), 0);
+      const fitB = safeInt(b.getAttribute('data-fit'), 0);
+      if (fitA !== fitB) return fitB - fitA;
 
-  allRows.forEach(row => tbody.appendChild(row));
+      // 4. Company name (A-Z)
+      const compA = (a.getAttribute('data-company') || '').toLowerCase();
+      const compB = (b.getAttribute('data-company') || '').toLowerCase();
+      return compA.localeCompare(compB);
+    });
 
-  // Update headers
-  ths.forEach(th => {
-    const col = th.getAttribute('data-col');
-    const icon = th.querySelector('.sort-icon');
-    if (col === currentSortCol) {
-      th.classList.add('active-sort');
-      if (icon) icon.textContent = currentSortDir === 'asc' ? '↑' : '↓';
-    } else {
-      th.classList.remove('active-sort');
-      if (icon) icon.textContent = '↕';
-    }
-  });
+    allRows.forEach(row => tbody.appendChild(row));
 
-  updateSortChipActive();
+    // Update headers
+    ths.forEach(th => {
+      const col = th.getAttribute('data-col');
+      const icon = th.querySelector('.sort-icon');
+      if (col === currentSortCol) {
+        th.classList.add('active-sort');
+        if (icon) icon.textContent = currentSortDir === 'asc' ? '↑' : '↓';
+      } else {
+        th.classList.remove('active-sort');
+        if (icon) icon.textContent = '↕';
+      }
+    });
+
+    updateSortChipActive();
+  } catch (err) {
+    console.error('filterAndSort error:', err);
+  }
 }
 
 function updateSortChipActive() {
@@ -1387,11 +1422,11 @@ sortChips.forEach(chip => {
   chip.addEventListener('click', () => {
     const sortVal = chip.getAttribute('data-sort');
     if (!sortVal) return;
-    const parts = sortVal.split('-');
-    currentSortCol = parts[0];
-    currentSortDir = parts[1];
+    const parsed = parseSortValue(sortVal);
+    currentSortCol = parsed.col;
+    currentSortDir = parsed.dir;
     if (sortSelect) {
-      sortSelect.value = sortVal;
+      sortSelect.value = `${currentSortCol}-${currentSortDir}`;
     }
     updateSortChipActive();
     filterAndSort();
@@ -1400,13 +1435,11 @@ sortChips.forEach(chip => {
 
 if (sortSelect) {
   sortSelect.addEventListener('change', () => {
-    const parts = sortSelect.value.split('-');
-    if (parts.length >= 2) {
-      currentSortCol = parts[0];
-      currentSortDir = parts[1];
-      updateSortChipActive();
-      filterAndSort();
-    }
+    const parsed = parseSortValue(sortSelect.value);
+    currentSortCol = parsed.col;
+    currentSortDir = parsed.dir;
+    updateSortChipActive();
+    filterAndSort();
   });
 }
 
